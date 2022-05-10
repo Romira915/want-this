@@ -2,7 +2,6 @@ use yew::prelude::*;
 
 mod bindings;
 
-use yew::prelude::*;
 use yew_router::prelude::*;
 
 #[derive(Clone, Routable, PartialEq)]
@@ -57,18 +56,22 @@ fn switch_main(route: &MainRoute) -> Html {
                     <script src="https://accounts.google.com/gsi/client"></script>
 
                     <div id="g_id_onload"
-                      data-client_id="839980808596-tq6nkmcik0nrohr079rj4vt5bdhvr15g.apps.googleusercontent.com"
-                      data-login_uri="http://localhost:8080/login/callback"
-                      data-auto_prompt="false">
-                      </div>
-                      <div class="g_id_signin"
-                      data_type="standard"
-                      data-size="large"
-                      data-theme="outline"
-                      data-text="sign_in_with"
-                      data-shape="rectangular"
-                      data-logo_alignment="left">
-                      </div>
+                        data-client_id="839980808596-tq6nkmcik0nrohr079rj4vt5bdhvr15g.apps.googleusercontent.com"
+                        data-context="signup"
+                        data-ux_mode="popup"
+                        data-login_uri="localhost:8080/login/callback"
+                        data-auto_prompt="false">
+                    </div>
+
+                    <div class="g_id_signin"
+                        data_type="standard"
+                        data-shape="rectangular"
+                        data-theme="filled_blue"
+                        data-text="$ {button.text}"
+                        data-size="large"
+                        data-locale="ja"
+                        data-logo_alignment="left">
+                    </div>
                       <button onclick={onclick}>{"Authorize with Google"}</button>
                 </div>
             }
