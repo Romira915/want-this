@@ -59,7 +59,7 @@ fn switch_main(route: &MainRoute) -> Html {
                         data-client_id="839980808596-tq6nkmcik0nrohr079rj4vt5bdhvr15g.apps.googleusercontent.com"
                         data-context="signup"
                         data-ux_mode="popup"
-                        data-login_uri="localhost:8080/login/callback"
+                        data-login_uri="http://localhost:8888/login/callback"
                         data-auto_prompt="false">
                     </div>
 
