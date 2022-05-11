@@ -95,6 +95,20 @@ async fn welcome(req: HttpRequest, session: Session) -> Result<HttpResponse> {
         .body(format!("{:?}", session.get::<String>("user_id"))))
 }
 
+#[get("login/state")]
+async fn login_state(req: HttpRequest, session: Session) -> Result<HttpResponse> {
+    let id = session.get::<String>("user_id")?;
+
+    match id {
+        Some(id) => Ok(HttpResponse::build(StatusCode::OK)
+            .content_type(ContentType::html())
+            .body(format!("<h1>Your id {}<h1>", id))),
+        None => Ok(HttpResponse::build(StatusCode::OK)
+            .content_type(ContentType::html())
+            .body(format!("<h1>Your id {}<h1>", "None"))),
+    }
+}
+
 #[post("/login/callback")]
 async fn login(
     req: HttpRequest,
@@ -192,6 +206,7 @@ async fn main() -> io::Result<()> {
             // register simple route, handle all methods
             .service(welcome)
             .service(login)
+            .service(login_state)
             // with path parameters
             .service(web::resource("/user/{name}").route(web::get().to(with_param)))
             // async response body
