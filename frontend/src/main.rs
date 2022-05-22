@@ -1,7 +1,13 @@
-use yew::prelude::*;
+use wasm_bindgen::{JsCast, JsValue};
+use wasm_bindgen_futures::JsFuture;
+use web_sys::RequestCredentials;
+use web_sys::{window, Request, RequestInit, RequestMode, Response};
+use yew::{html::Scope, prelude::*};
+use yew_hooks::prelude::*;
 
 mod bindings;
 
+use yew_hooks::use_async;
 use yew_router::prelude::*;
 
 #[derive(Clone, Routable, PartialEq)]
@@ -25,6 +31,8 @@ enum MainRoute {
 enum LoginRoute {
     #[at("/login/callback")]
     Callback,
+    #[at("/login/state")]
+    State,
     #[not_found]
     #[at("/login/404")]
     NotFound,
@@ -44,10 +52,6 @@ enum SettingsRoute {
 }
 
 fn switch_main(route: &MainRoute) -> Html {
-    let onclick = Callback::from(move |_| {
-        bindings::send();
-    });
-
     match route {
         MainRoute::Home => {
             html! {
@@ -59,7 +63,7 @@ fn switch_main(route: &MainRoute) -> Html {
                         data-client_id="839980808596-tq6nkmcik0nrohr079rj4vt5bdhvr15g.apps.googleusercontent.com"
                         data-context="signup"
                         data-ux_mode="popup"
-                        data-login_uri="http://localhost:8888/login/callback"
+                        data-login_uri="http://localhost:9080/login/callback"
                         data-auto_prompt="false">
                     </div>
 
@@ -72,7 +76,6 @@ fn switch_main(route: &MainRoute) -> Html {
                         data-locale="ja"
                         data-logo_alignment="left">
                     </div>
-                      <button onclick={onclick}>{"Authorize with Google"}</button>
                 </div>
             }
         }
@@ -102,10 +105,50 @@ fn switch_settings(route: &SettingsRoute) -> Html {
 fn switch_login(route: &LoginRoute) -> Html {
     match route {
         LoginRoute::Callback => html! {<h1>{"Login"}</h1>},
+        LoginRoute::State => {
+            html!(
+                <State />
+            )
+        }
         LoginRoute::NotFound => html! {
             <Redirect<MainRoute> to={MainRoute::NotFound}/>
         },
     }
+}
+
+#[function_component(State)]
+pub fn state() -> Html {
+    let state = use_async_with_options(
+        async move { fetch("http://localhost:9080/login/state").await },
+        UseAsyncOptions::enable_auto(),
+    );
+    log::info!("{:?}", &state.data);
+
+    html!(
+                <div>
+                {
+                    if state.loading {
+                        html! { "Loading" }
+                    } else {
+                        html! { "end" }
+                    }
+                }
+                {
+                    if let Some(data) = &state.data {
+                        html! { data }
+                    } else {
+                        html! {}
+                    }
+                }
+                {
+                    if let Some(error) = &state.error {
+                        html! { format!("{:?}",error) }
+                    } else {
+                        html! {}
+                    }
+                }
+            </div>
+    )
 }
 
 #[function_component(App)]
@@ -114,11 +157,33 @@ pub fn app() -> Html {
         <BrowserRouter>
             <script src="https://accounts.google.com/gsi/client"></script>
 
+
             <Switch<MainRoute> render={Switch::render(switch_main)} />
         </BrowserRouter>
     }
 }
 
+async fn fetch(url: &'static str) -> Result<String, JsValue> {
+    let mut opts = RequestInit::new();
+    opts.method("GET")
+        .mode(RequestMode::Cors)
+        .credentials(RequestCredentials::Include);
+
+    let request = Request::new_with_str_and_init(url, &opts)?;
+    log::info!("request");
+
+    let window = gloo_utils::window();
+    let resp_value = JsFuture::from(window.fetch_with_request(&request)).await?;
+    log::info!("resp_value");
+
+    let resp: Response = resp_value.dyn_into().unwrap();
+    let text = JsFuture::from(resp.text()?).await?;
+    log::info!("text");
+
+    Ok(text.as_string().unwrap())
+}
+
 fn main() {
+    wasm_logger::init(wasm_logger::Config::default());
     yew::start_app::<App>();
 }

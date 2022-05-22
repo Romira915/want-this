@@ -1,13 +1,47 @@
 version: "3.9"
 services:
+  backend:
+    build:
+      context: .
+      dockerfile: backend/Dockerfile
+      target: develop
+    ports:
+      - 9080:9080
+    volumes:
+      - .:/want-this-backend
+      - cargo-target:/tmp/cargo/target
+    environment:
+      - CARGO_BUILD_TARGET_DIR=/tmp/cargo/target
+    command: /bin/sh -c "cargo watch -i frontend -x 'run -p want-this-backend'"
+    depends_on:
+      - db
+      - redis
+  frontend:
+    build:
+      context: .
+      dockerfile: frontend/Dockerfile
+      target: develop
+    ports:
+      - 8080:8080
+    volumes:
+      - .:/want-this-frontend
+      - cargo-target:/tmp/cargo/target
+    environment:
+      - CARGO_BUILD_TARGET_DIR=/tmp/cargo/target
+    command: /bin/sh -c "trunk serve"
+
   db:
     image: mariadb:latest
     restart: always
     environment:
-      MARIADB_ROOT_PASSWORD: password  
+      MARIADB_ROOT_PASSWORD: ${MARIADB_ROOT_PASSWORD}
+      MARIADB_DATABASE: ${MARIADB_DATABASE}
+      MARIADB_USER: ${MARIADB_USER}
+      MARIADB_PASSWORD: ${MARIADB_PASSWORD}
+
     ports:
       - 3306:3306
-  
+
   redis:
     image: redis:latest
     restart: always
@@ -15,3 +49,6 @@ services:
       - 6379:6379
     volumes:
       - ./redis/conf:/usr/local/etc/redis
+
+volumes:
+  cargo-target:

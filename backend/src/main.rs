@@ -3,6 +3,7 @@ use std::fs::File;
 use std::{convert::Infallible, fmt::format};
 use std::{env, io};
 
+use actix_cors::Cors;
 use actix_files::{Files, NamedFile};
 use actix_redis::RedisSession;
 use actix_session::Session;
@@ -70,7 +71,7 @@ struct GooglePublicKeyList {
 /// favicon handler
 #[get("/favicon")]
 async fn favicon() -> Result<impl Responder> {
-    Ok(NamedFile::open("static/favicon.ico")?)
+    Ok(NamedFile::open("./backend/static/favicon.ico")?)
 }
 
 /// simple index handler
@@ -101,11 +102,11 @@ async fn login_state(req: HttpRequest, session: Session) -> Result<HttpResponse>
 
     match id {
         Some(id) => Ok(HttpResponse::build(StatusCode::OK)
-            .content_type(ContentType::html())
-            .body(format!("<h1>Your id {}<h1>", id))),
+            .content_type(ContentType::plaintext())
+            .body(format!("Your id {}", id))),
         None => Ok(HttpResponse::build(StatusCode::OK)
-            .content_type(ContentType::html())
-            .body(format!("<h1>Your id {}<h1>", "None"))),
+            .content_type(ContentType::plaintext())
+            .body(format!("Your id {}", "None"))),
     }
 }
 
@@ -146,15 +147,16 @@ async fn login(
     }
 
     // response
-    Ok(HttpResponse::build(StatusCode::OK)
-        .content_type(ContentType::html())
-        .body(format!("{:?}", google)))
+    Ok(HttpResponse::build(StatusCode::MOVED_PERMANENTLY)
+        .append_header((header::LOCATION, "http://localhost:8080/login/state"))
+        .finish())
 }
 
 async fn default_handler(req_method: Method) -> Result<impl Responder> {
     match req_method {
         Method::GET => {
-            let file = NamedFile::open("static/404.html")?.set_status_code(StatusCode::NOT_FOUND);
+            let file =
+                NamedFile::open("backend/static/404.html")?.set_status_code(StatusCode::NOT_FOUND);
             Ok(Either::Left(file))
         }
         _ => Ok(Either::Right(HttpResponse::MethodNotAllowed().finish())),
@@ -195,12 +197,19 @@ async fn main() -> io::Result<()> {
     let private_key = actix_web::cookie::Key::generate();
 
     HttpServer::new(move || {
+        // let cors = Cors::permissive();
+        let cors = Cors::default()
+            .allowed_origin("http://localhost:8080")
+            .supports_credentials();
+        // let cors = Cors::permissive();
+
         App::new()
             // enable automatic response compression - usually register this first
             // cookie session middleware
             // enable logger - always register Actix Web Logger middleware last
             .wrap(middleware::Logger::default())
-            .wrap(RedisSession::new("localhost:6379", private_key.master()))
+            .wrap(RedisSession::new("redis:6379", private_key.master()))
+            .wrap(cors)
             // register favicon
             .service(favicon)
             // register simple route, handle all methods
@@ -225,7 +234,7 @@ async fn main() -> io::Result<()> {
                 )
             }))
             // static files
-            .service(Files::new("/static", "static").show_files_listing())
+            .service(Files::new("/static", "backend/static").show_files_listing())
             // redirect
             // .service(
             //     web::resource("/").route(web::get().to(|req: HttpRequest| async move {
@@ -236,10 +245,10 @@ async fn main() -> io::Result<()> {
             //     })),
             // )
             // default
-            .service(Files::new("/", "../frontend/dist/").index_file("index.html"))
+            .service(Files::new("/", "./frontend/dist/").index_file("index.html"))
             .default_service(web::to(default_handler))
     })
-    .bind(("127.0.0.1", 8888))?
+    .bind(("0.0.0.0", 9080))?
     .workers(2)
     .run()
     .await

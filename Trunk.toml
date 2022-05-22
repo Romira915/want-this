@@ -1,0 +1,16 @@
+[build]
+# The index HTML file to drive the bundling process.
+target = "./frontend/index.html"
+# Build in release mode.
+release = false
+# The output dir for all final assets.
+dist = "./frontend/dist"
+# The public URL from which assets are to be served.
+public_url = "/"
+
+[watch]
+ignore = ["backend/"]
+
+[serve]
+address = "0.0.0.0"
+port = 8080
