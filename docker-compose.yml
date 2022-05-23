@@ -12,7 +12,7 @@ services:
       - cargo-target:/tmp/cargo/target
     environment:
       - CARGO_BUILD_TARGET_DIR=/tmp/cargo/target
-    command: /bin/sh -c "cargo watch -i frontend -x 'run -p want-this-backend'"
+    command: /bin/bash -c "cargo watch -i frontend -x 'run -p want-this-backend'"
     depends_on:
       - db
       - redis
@@ -28,7 +28,7 @@ services:
       - cargo-target:/tmp/cargo/target
     environment:
       - CARGO_BUILD_TARGET_DIR=/tmp/cargo/target
-    command: /bin/sh -c "trunk serve"
+    command: /bin/bash -c "trunk serve"
 
   db:
     image: mariadb:latest

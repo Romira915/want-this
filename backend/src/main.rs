@@ -1,5 +1,5 @@
 use std::collections::HashMap;
-use std::fs::File;
+use std::fs::{self, File};
 use std::{convert::Infallible, fmt::format};
 use std::{env, io};
 
@@ -7,6 +7,8 @@ use actix_cors::Cors;
 use actix_files::{Files, NamedFile};
 use actix_redis::RedisSession;
 use actix_session::Session;
+use actix_web::cookie::time::macros::offset;
+use actix_web::cookie::time::UtcOffset;
 use actix_web::{
     error, get,
     http::{
@@ -19,11 +21,17 @@ use actix_web::{
 };
 use actix_web::{http, HttpMessage};
 use async_stream::stream;
+use chrono::{FixedOffset, Utc};
 use jsonwebtoken::{decode, decode_header, jwk, DecodingKey, Validation};
+use log::LevelFilter;
 use oauth2::basic::BasicClient;
 use oauth2::{AuthUrl, ClientId, ClientSecret, TokenUrl};
 use once_cell::sync::OnceCell;
 use serde::{Deserialize, Serialize};
+use simplelog::{
+    ColorChoice, CombinedLogger, Config, ConfigBuilder, SharedLogger, TermLogger, TerminalMode,
+    WriteLogger,
+};
 
 const AUTH_URL: OnceCell<AuthUrl> = OnceCell::new();
 const TOKEN_URL: OnceCell<TokenUrl> = OnceCell::new();
@@ -183,16 +191,54 @@ async fn with_param(req: HttpRequest, path: web::Path<(String,)>) -> HttpRespons
         .body(format!("Hello {}!", path.0))
 }
 
+fn init_logger(log_path: Option<&str>) {
+    const JST_UTCOFFSET_SECS: i32 = 9 * 3600;
+
+    let jst_now = {
+        let jst = Utc::now();
+        jst.with_timezone(&FixedOffset::east(JST_UTCOFFSET_SECS))
+    };
+
+    let offset = UtcOffset::from_whole_seconds(JST_UTCOFFSET_SECS).unwrap();
+
+    let mut config = ConfigBuilder::new();
+    config.set_time_offset(offset);
+
+    let mut logger: Vec<Box<dyn SharedLogger>> = vec![
+        #[cfg(not(feature = "termcolor"))]
+        TermLogger::new(
+            if cfg!(debug_assertions) {
+                LevelFilter::Debug
+            } else {
+                LevelFilter::Info
+            },
+            config.build(),
+            TerminalMode::Mixed,
+            ColorChoice::Always,
+        ),
+    ];
+    if let Some(log_path) = log_path {
+        let log_path = std::path::Path::new(log_path);
+        fs::create_dir_all(&log_path).unwrap();
+        logger.push(WriteLogger::new(
+            LevelFilter::Warn,
+            config.build(),
+            File::create(log_path.join(format!("{}.log", jst_now))).unwrap(),
+        ));
+    }
+    CombinedLogger::init(logger).unwrap()
+}
+
 #[actix_web::main]
 async fn main() -> io::Result<()> {
     dotenv::dotenv().unwrap();
     env::set_var(
         "RUST_LOG",
-        "actix_web=debug,actix_redis=info,actix_server=info",
+        "actix_web=debug,actix_redis=info,`actix_server=info",
     );
-    env_logger::init_from_env(env_logger::Env::new().default_filter_or("info"));
+    init_logger(None);
 
-    log::info!("starting HTTP server at http://localhost:8888");
+    log::info!("starting HTTP server at http://localhost:9080");
 
     let private_key = actix_web::cookie::Key::generate();
 
