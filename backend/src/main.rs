@@ -171,26 +171,6 @@ async fn default_handler(req_method: Method) -> Result<impl Responder> {
     }
 }
 
-/// response body
-async fn response_body(path: web::Path<String>) -> HttpResponse {
-    let name = path.into_inner();
-
-    HttpResponse::Ok().streaming(stream! {
-        yield Ok::<_, Infallible>(web::Bytes::from("Hello "));
-        yield Ok::<_, Infallible>(web::Bytes::from(name));
-        yield Ok::<_, Infallible>(web::Bytes::from("!"));
-    })
-}
-
-/// handler with path parameters like `/user/{name}/`
-async fn with_param(req: HttpRequest, path: web::Path<(String,)>) -> HttpResponse {
-    println!("{:?}", req);
-
-    HttpResponse::Ok()
-        .content_type(ContentType::plaintext())
-        .body(format!("Hello {}!", path.0))
-}
-
 fn init_logger(log_path: Option<&str>) {
     const JST_UTCOFFSET_SECS: i32 = 9 * 3600;
 
@@ -256,16 +236,10 @@ async fn main() -> io::Result<()> {
             .wrap(middleware::Logger::default())
             .wrap(RedisSession::new("redis:6379", private_key.master()))
             .wrap(cors)
-            // register favicon
             .service(favicon)
-            // register simple route, handle all methods
             .service(welcome)
             .service(login)
             .service(login_state)
-            // with path parameters
-            .service(web::resource("/user/{name}").route(web::get().to(with_param)))
-            // async response body
-            .service(web::resource("/async-body/{name}").route(web::get().to(response_body)))
             .service(
                 web::resource("/test").to(|req: HttpRequest| match *req.method() {
                     Method::GET => HttpResponse::Ok(),
@@ -282,16 +256,15 @@ async fn main() -> io::Result<()> {
             // static files
             .service(Files::new("/static", "backend/static").show_files_listing())
             // redirect
-            // .service(
-            //     web::resource("/").route(web::get().to(|req: HttpRequest| async move {
-            //         println!("{:?}", req);
-            //         HttpResponse::Found()
-            //             .insert_header((header::LOCATION, "static/welcome.html"))
-            //             .finish()
-            //     })),
-            // )
+            .service(
+                web::resource("/").route(web::get().to(|req: HttpRequest| async move {
+                    println!("{:?}", req);
+                    HttpResponse::Found()
+                        .insert_header((header::LOCATION, "http://localhost:8080"))
+                        .finish()
+                })),
+            )
             // default
-            .service(Files::new("/", "./frontend/dist/").index_file("index.html"))
             .default_service(web::to(default_handler))
     })
     .bind(("0.0.0.0", 9080))?
