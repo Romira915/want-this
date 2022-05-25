@@ -8,6 +8,7 @@ use actix_web::{
 use reqwest::StatusCode;
 use serde::{Deserialize, Serialize};
 use sqlx::{MySql, Pool};
+use uuid::Uuid;
 
 use crate::{auth::decode_google_jwt_with_jwturl, session::SessionKey};
 
@@ -40,14 +41,18 @@ async fn auth(
         return Ok(HttpResponse::build(StatusCode::UNAUTHORIZED).finish());
     }
 
-    sqlx::query!(
-        "INSERT IGNORE INTO users (user_id, user_name) VALUES (?, ?)",
+    if let Err(e) = sqlx::query!(
+        "INSERT IGNORE INTO users (user_id, user_name, friend_id) VALUES (?, ?, ?)",
         &google_payload.sub,
         &google_payload.name,
+        Uuid::new_v4().to_string()
     )
     .execute(pool.as_ref())
     .await
-    .unwrap();
+    {
+        log::warn!("Failed to DB insert {}", &e);
+        return Ok(HttpResponse::build(StatusCode::UNAUTHORIZED).finish());
+    }
 
     // response
     Ok(HttpResponse::build(StatusCode::MOVED_PERMANENTLY)
