@@ -63,7 +63,7 @@ fn switch_main(route: &MainRoute) -> Html {
                         data-client_id="839980808596-tq6nkmcik0nrohr079rj4vt5bdhvr15g.apps.googleusercontent.com"
                         data-context="signup"
                         data-ux_mode="popup"
-                        data-login_uri="http://localhost:9080/login/callback"
+                        data-login_uri="http://localhost:9080/auth"
                         data-auto_prompt="false">
                     </div>
 
@@ -184,6 +184,11 @@ async fn fetch(url: &'static str) -> Result<String, JsValue> {
 }
 
 fn main() {
-    wasm_logger::init(wasm_logger::Config::default());
+    let config = wasm_logger::Config::new(if cfg!(debug_assertions) {
+        log::Level::Debug
+    } else {
+        log::Level::Info
+    });
+    wasm_logger::init(config);
     yew::start_app::<App>();
 }
