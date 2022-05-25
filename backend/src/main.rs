@@ -203,6 +203,7 @@ async fn main() -> io::Result<()> {
         .unwrap();
 
     log::info!("starting HTTP server at http://0.0.0.0:9080");
+    log::debug!("database url {}", DATABASE_URL.get().unwrap());
 
     let private_key = actix_web::cookie::Key::generate();
 

@@ -41,11 +41,13 @@ async fn auth(
         return Ok(HttpResponse::build(StatusCode::UNAUTHORIZED).finish());
     }
 
+    let uuid = Uuid::new_v4().as_u128().to_string();
+    log::debug!("uuid {}", uuid);
+
     if let Err(e) = sqlx::query!(
-        "INSERT IGNORE INTO users (user_id, user_name, friend_id) VALUES (?, ?, ?)",
+        "INSERT IGNORE INTO users (user_id, user_name, friend_id) VALUES (?, ?, UUID())",
         &google_payload.sub,
         &google_payload.name,
-        Uuid::new_v4().to_string()
     )
     .execute(pool.as_ref())
     .await
