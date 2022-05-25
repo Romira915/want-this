@@ -9,7 +9,7 @@ dist = "./frontend/dist"
 public_url = "/"
 
 [watch]
-ignore = ["backend/"]
+watch = ["frontend/"]
 
 [serve]
 address = "0.0.0.0"

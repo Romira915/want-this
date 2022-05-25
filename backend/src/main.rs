@@ -1,5 +1,6 @@
 use std::collections::HashMap;
 use std::fs::{self, File};
+use std::time::Duration;
 use std::{convert::Infallible, fmt::format};
 use std::{env, io};
 
@@ -32,33 +33,18 @@ use simplelog::{
     ColorChoice, CombinedLogger, Config, ConfigBuilder, SharedLogger, TermLogger, TerminalMode,
     WriteLogger,
 };
+use want_this_backend::auth::{decode_google_jwt_with_jwturl, GooglePayload};
+use want_this_backend::service::auth::auth;
+use want_this_backend::session::SessionKey;
 
-const AUTH_URL: OnceCell<AuthUrl> = OnceCell::new();
-const TOKEN_URL: OnceCell<TokenUrl> = OnceCell::new();
-const GOOGLE_CLIENT_SECRET: OnceCell<ClientSecret> = OnceCell::new();
+static REDIS_ADDRESS: OnceCell<String> = OnceCell::new();
+static FRONTEND_ORIGIN: OnceCell<String> = OnceCell::new();
+static DATABASE_URL: OnceCell<String> = OnceCell::new();
 
 #[derive(Debug, Serialize, Deserialize)]
 struct GoogleOAuth {
     pub g_csrf_token: String,
     pub credential: String,
-}
-
-#[derive(Debug, Serialize, Deserialize)]
-struct GooglePayload {
-    pub iss: String,
-    pub nbf: u32,
-    pub aud: String,
-    pub sub: String,
-    pub hd: Option<String>,
-    pub email: String,
-    pub email_verified: bool,
-    pub name: String,
-    pub picture: String,
-    pub given_name: String,
-    pub family_name: String,
-    pub iat: u32,
-    pub exp: u32,
-    pub jti: String,
 }
 
 #[derive(Debug, Serialize, Deserialize)]
@@ -106,7 +92,7 @@ async fn welcome(req: HttpRequest, session: Session) -> Result<HttpResponse> {
 
 #[get("login/state")]
 async fn login_state(req: HttpRequest, session: Session) -> Result<HttpResponse> {
-    let id = session.get::<String>("user_id")?;
+    let id = session.get::<String>(SessionKey::GoogleId.as_ref())?;
 
     match id {
         Some(id) => Ok(HttpResponse::build(StatusCode::OK)
@@ -124,35 +110,15 @@ async fn login(
     google: web::Form<GoogleOAuth>,
     session: Session,
 ) -> Result<HttpResponse> {
-    println!("{:?}", &req);
-    println!("oauth {:?}", &google);
     let id = session.get::<String>("g_csrf_token")?;
-    println!("user_id {:?}", id);
     let counter = session.get::<i32>("counter")?;
-    println!("counter {:?}", counter);
     session.insert("user_id", &google.g_csrf_token)?;
     session.renew();
 
-    let resp = reqwest::get("https://www.googleapis.com/oauth2/v3/certs")
+    let google_token = decode_google_jwt_with_jwturl(&google.credential)
         .await
         .unwrap();
-    let publick_key: jwk::JwkSet = resp.json().await.unwrap();
-
-    let header = decode_header(&google.credential).unwrap();
-    let kid = header.kid.unwrap();
-    if let Some(j) = publick_key.find(&kid) {
-        match j.algorithm {
-            jwk::AlgorithmParameters::RSA(ref rsa) => {
-                let decoding_key = DecodingKey::from_rsa_components(&rsa.n, &rsa.e).unwrap();
-                let mut validation = Validation::new(j.common.algorithm.unwrap());
-                validation.validate_exp = false;
-                let mut decoded_token =
-                    decode::<GooglePayload>(&google.credential, &decoding_key, &validation)
-                        .unwrap();
-            }
-            _ => unreachable!("this should be a RSA"),
-        }
-    }
+    log::debug!("token {:#?}", &google_token);
 
     // response
     Ok(HttpResponse::build(StatusCode::MOVED_PERMANENTLY)
@@ -214,32 +180,57 @@ async fn main() -> io::Result<()> {
     dotenv::dotenv().unwrap();
     env::set_var(
         "RUST_LOG",
-        "actix_web=debug,actix_redis=info,`actix_server=info",
+        "actix_web=info,actix_redis=info,`actix_server=info",
     );
     init_logger(None);
 
-    log::info!("starting HTTP server at http://localhost:9080");
+    let num_cpus = num_cpus::get();
+
+    REDIS_ADDRESS
+        .set(env::var("REDIS_ADDRESS").unwrap())
+        .unwrap();
+    FRONTEND_ORIGIN
+        .set(env::var("FRONTEND_ORIGIN").unwrap())
+        .unwrap();
+    DATABASE_URL
+        .set(format!(
+            "mysql://{}:{}@{}/{}",
+            env::var("MARIADB_USER").unwrap(),
+            env::var("MARIADB_PASSWORD").unwrap(),
+            env::var("MARIADB_ADDRESS").unwrap(),
+            env::var("MARIADB_DATABASE").unwrap()
+        ))
+        .unwrap();
+
+    log::info!("starting HTTP server at http://0.0.0.0:9080");
 
     let private_key = actix_web::cookie::Key::generate();
 
     HttpServer::new(move || {
-        // let cors = Cors::permissive();
-        let cors = Cors::default()
-            .allowed_origin("http://localhost:8080")
-            .supports_credentials();
-        // let cors = Cors::permissive();
-
         App::new()
-            // enable automatic response compression - usually register this first
-            // cookie session middleware
-            // enable logger - always register Actix Web Logger middleware last
             .wrap(middleware::Logger::default())
-            .wrap(RedisSession::new("redis:6379", private_key.master()))
-            .wrap(cors)
+            .wrap(RedisSession::new(
+                REDIS_ADDRESS.get().unwrap(),
+                private_key.master(),
+            ))
+            .wrap(if cfg!(debug_assertions) {
+                Cors::permissive()
+            } else {
+                Cors::default()
+                    .supports_credentials()
+                    .allowed_origin(FRONTEND_ORIGIN.get().unwrap())
+            })
+            .data_factory(move || {
+                sqlx::mysql::MySqlPoolOptions::new()
+                    .max_connections(num_cpus as u32)
+                    .connect_timeout(Duration::from_secs(1))
+                    .connect(DATABASE_URL.get().unwrap())
+            })
             .service(favicon)
             .service(welcome)
             .service(login)
             .service(login_state)
+            .service(auth)
             .service(
                 web::resource("/test").to(|req: HttpRequest| match *req.method() {
                     Method::GET => HttpResponse::Ok(),
@@ -253,14 +244,14 @@ async fn main() -> io::Result<()> {
                     StatusCode::INTERNAL_SERVER_ERROR,
                 )
             }))
-            // static files
             .service(Files::new("/static", "backend/static").show_files_listing())
-            // redirect
             .service(
                 web::resource("/").route(web::get().to(|req: HttpRequest| async move {
-                    println!("{:?}", req);
                     HttpResponse::Found()
-                        .insert_header((header::LOCATION, "http://localhost:8080"))
+                        .insert_header((
+                            header::LOCATION,
+                            format!("http://{}", FRONTEND_ORIGIN.get().unwrap()),
+                        ))
                         .finish()
                 })),
             )
@@ -268,7 +259,7 @@ async fn main() -> io::Result<()> {
             .default_service(web::to(default_handler))
     })
     .bind(("0.0.0.0", 9080))?
-    .workers(2)
+    .workers(num_cpus)
     .run()
     .await
 }
