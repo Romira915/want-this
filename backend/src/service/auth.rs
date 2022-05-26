@@ -45,10 +45,7 @@ async fn auth(
         return Ok(HttpResponse::build(StatusCode::UNAUTHORIZED).finish());
     }
 
-    let user = User {
-        id: google_payload.sub,
-        name: google_payload.name,
-    };
+    let user = User::new(google_payload.sub, google_payload.name);
 
     if let Err(e) = new_user(pool.as_ref(), user).await {
         log::warn!("{}", &e);

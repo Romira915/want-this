@@ -10,8 +10,8 @@ CREATE TABLE IF NOT EXISTS friends_relationship (
     friend_relationship_id INTEGER PRIMARY KEY NOT NULL AUTO_INCREMENT,
     source UUID NOT NULL,
     destination UUID NOT NULL,
-    CONSTRAINT fk_src FOREIGN KEY (source) REFERENCES users(friend_id),
-    CONSTRAINT fk_dist FOREIGN KEY (destination) REFERENCES users(friend_id),
     created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+    updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    CONSTRAINT fk_src FOREIGN KEY (source) REFERENCES users(friend_id),
+    CONSTRAINT fk_dist FOREIGN KEY (destination) REFERENCES users(friend_id)
 );
