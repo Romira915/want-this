@@ -1,4 +1,5 @@
 use derive_more::Constructor;
+use uuid::Uuid;
 
 pub mod users;
 
@@ -6,4 +7,9 @@ pub mod users;
 pub struct User {
     pub id: String,
     pub name: String,
+}
+
+#[derive(Debug, Constructor)]
+pub struct Friend {
+    pub follow: u64,
 }
