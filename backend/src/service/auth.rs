@@ -10,7 +10,11 @@ use serde::{Deserialize, Serialize};
 use sqlx::{MySql, Pool};
 use uuid::Uuid;
 
-use crate::{auth::decode_google_jwt_with_jwturl, session::SessionKey};
+use crate::{
+    actions::{users::new_user, User},
+    auth::decode_google_jwt_with_jwturl,
+    session::SessionKey,
+};
 
 #[derive(Debug, Serialize, Deserialize)]
 struct GoogleOAuth {
@@ -41,18 +45,13 @@ async fn auth(
         return Ok(HttpResponse::build(StatusCode::UNAUTHORIZED).finish());
     }
 
-    let uuid = Uuid::new_v4().as_u128().to_string();
-    log::debug!("uuid {}", uuid);
+    let user = User {
+        id: google_payload.sub,
+        name: google_payload.name,
+    };
 
-    if let Err(e) = sqlx::query!(
-        "INSERT IGNORE INTO users (user_id, user_name, friend_id) VALUES (?, ?, UUID())",
-        &google_payload.sub,
-        &google_payload.name,
-    )
-    .execute(pool.as_ref())
-    .await
-    {
-        log::warn!("Failed to DB insert {}", &e);
+    if let Err(e) = new_user(pool.as_ref(), user).await {
+        log::warn!("{}", &e);
         return Ok(HttpResponse::build(StatusCode::UNAUTHORIZED).finish());
     }
 
