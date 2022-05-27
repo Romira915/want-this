@@ -20,8 +20,6 @@ services:
         condition: service_started
       redis:
         condition: service_started
-    networks:
-      - want_this_network
 
   frontend:
     build:
@@ -36,8 +34,6 @@ services:
     environment:
       - CARGO_BUILD_TARGET_DIR=/tmp/cargo/target
     command: /bin/bash -c "trunk serve"
-    networks:
-      - want_this_network
 
   db:
     image: mariadb:latest
@@ -49,9 +45,6 @@ services:
       MARIADB_PASSWORD: ${MARIADB_PASSWORD}
     ports:
       - 3306:3306
-    networks:
-      want_this_network:
-        ipv4_address: 172.18.0.2
 
   redis:
     image: redis:latest
@@ -60,20 +53,8 @@ services:
       - 6379:6379
     volumes:
       - ./redis/conf:/usr/local/etc/redis
-    networks:
-      - want_this_network
 
 volumes:
   cargo-target:
 
 
-networks:
-  want_this_network:
-    driver: bridge
-    driver_opts:
-      com.docker.networks.enable_ipv6: "false"
-    ipam:
-      driver: default
-      config:
-        - subnet: 172.18.0.0/20
-          gateway: 172.18.0.1
