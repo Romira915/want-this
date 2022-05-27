@@ -4,14 +4,26 @@ CREATE TABLE IF NOT EXISTS users (
     user_name VARCHAR(100),
     created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
     updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-    INDEX idx_uid(user_id)
+    INDEX idx_user_id(user_id)
 );
 CREATE TABLE IF NOT EXISTS friends_relationship (
-    friend_relationship_id INTEGER UNSIGNED PRIMARY KEY NOT NULL AUTO_INCREMENT,
     source BIGINT UNSIGNED NOT NULL,
     destination BIGINT UNSIGNED NOT NULL,
     created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
     updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-    CONSTRAINT fk_src FOREIGN KEY (source) REFERENCES users(user_id),
-    CONSTRAINT fk_dist FOREIGN KEY (destination) REFERENCES users(user_id)
+    PRIMARY KEY (source, destination),
+    CONSTRAINT fk_src FOREIGN KEY (source) REFERENCES users(user_id) ON DELETE CASCADE,
+    CONSTRAINT fk_dist FOREIGN KEY (destination) REFERENCES users(user_id) ON DELETE CASCADE,
+    INDEX idx_source(source),
+    INDEX idx_destination(destination)
+);
+CREATE TABLE IF NOT EXISTS organizations (
+    organization_id BIGINT UNSIGNED NOT NULL DEFAULT UUID_SHORT(),
+    organization_name VARCHAR(100) NOT NULL,
+    description VARCHAR(255),
+    is_public BOOLEAN NOT NULL DEFAULT FALSE,
+    created_by BIGINT UNSIGNED NOT NULL,
+    created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    -- CONSTRAINT fk_created_by FOREIGN KEY (created_by) REFERENCES users(user_id) ON DELETE CASCADE
 );

@@ -22,13 +22,13 @@ pub async fn add_new_user(pool: &Pool<MySql>, new_user: &NewUser) -> anyhow::Res
 
 pub async fn add_follow_user(
     pool: &Pool<MySql>,
-    src_fid: &Uuid,
-    dist_fid: &Uuid,
+    src_uid: &Uuid,
+    dist_uid: &Uuid,
 ) -> anyhow::Result<()> {
     sqlx::query!(
         "INSERT INTO friends_relationship (source, destination) VALUES (?, ?)",
-        src_fid.to_string(),
-        dist_fid.to_string()
+        src_uid.to_string(),
+        dist_uid.to_string()
     )
     .execute(pool)
     .await
