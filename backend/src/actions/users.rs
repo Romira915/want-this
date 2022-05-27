@@ -1,14 +1,17 @@
-use anyhow::{Context, Ok};
+use anyhow::Context;
+use derive_more::Constructor;
 use sqlx::{query::Query, Database, Executor, IntoArguments, MySql, Pool};
 use uuid::Uuid;
 
-use super::{Friend, User};
+use crate::actions::Friend;
 
-pub async fn new_user(pool: &Pool<MySql>, user: &User) -> anyhow::Result<()> {
+use super::{NewUser, User};
+
+pub async fn add_new_user(pool: &Pool<MySql>, new_user: &NewUser) -> anyhow::Result<()> {
     sqlx::query!(
-        "INSERT IGNORE INTO users (user_id, user_name, friend_id) VALUES (?, ?, UUID())",
-        user.id,
-        user.name,
+        "INSERT IGNORE INTO users (google_id, user_name) VALUES (?, ?)",
+        new_user.google_id,
+        new_user.name,
     )
     .execute(pool)
     .await
@@ -17,7 +20,7 @@ pub async fn new_user(pool: &Pool<MySql>, user: &User) -> anyhow::Result<()> {
     Ok(())
 }
 
-pub async fn follow_user(
+pub async fn add_follow_user(
     pool: &Pool<MySql>,
     src_fid: &Uuid,
     dist_fid: &Uuid,
@@ -34,56 +37,62 @@ pub async fn follow_user(
     Ok(())
 }
 
-pub async fn friend_list(pool: &Pool<MySql>, friend_id: &Uuid) -> anyhow::Result<()> {
-    // let follower = sqlx::query!(
-    //     "SELECT source AS friend_id FROM friends_relationship WHERE destination='?'",
-    //     friend_id.to_string()
-    // )
-    // .fetch_all(pool)
-    // .await?;
+pub async fn fetch_friend_list(pool: &Pool<MySql>, user_id: u64) -> anyhow::Result<Vec<User>> {
+    let friend_list: Vec<User> = sqlx::query_as!(
+        User,
+        "
+        SELECT google_id, user_id, user_name 
+        FROM users INNER JOIN 
+        (SELECT follow AS user_id FROM 
+        (SELECT source AS follower FROM friends_relationship WHERE destination = ?) AS follower
+        INNER JOIN (SELECT destination AS follow FROM friends_relationship WHERE source = ?) AS follow 
+        ON follower.follower = follow.follow) 
+        AS friend_list USING(user_id);
+        ",
+        &user_id,
+        &user_id
+    )
+    .fetch_all(pool)
+    .await
+    .unwrap();
 
-    let friend_id = friend_id.to_string();
-
-    // let friend_list: Vec<Friend> = sqlx::query_as!(
-    //     Friend,
-    //     "
-    //     SELECT follow AS friend_id FROM
-    //     (SELECT source AS follower FROM friends_relationship WHERE destination='?') AS follower
-    //     INNER JOIN
-    //     (SELECT destination AS follow FROM friends_relationship WHERE source='?') AS follow
-    //     ON follower.follower = follow.follow
-    //     ",
-    //     &friend_id,
-    //     &friend_id,
-    // )
-    // .fetch_all(pool)
-    // .await
-    // .context("Failed to friend_list")?;
-
-    Ok(())
+    Ok(friend_list)
 }
 
 #[cfg(test)]
 mod tests {
     use std::env;
 
-    use crate::actions::User;
+    use sqlx::{MySql, Pool};
+    use uuid::{uuid, Uuid};
 
-    use super::new_user;
+    use crate::actions::NewUser;
+
+    use super::{add_new_user, fetch_friend_list};
     #[actix_web::test]
-    async fn test_new_user() {
-        dotenv::dotenv().unwrap();
-        let pool = sqlx::mysql::MySqlPoolOptions::new()
-            .connect(&env::var("TEST_DATABASE_URL").unwrap())
-            .await
-            .unwrap();
-
+    async fn test_insert_new_user() {
+        let pool = create_pool().await;
         for _ in 0..100 {
-            let user = User::new(
+            let user = NewUser::new(
                 rand::random::<u64>().to_string(),
-                rand::random::<u64>().to_string(),
+                Some(rand::random::<u64>().to_string()),
             );
-            new_user(&pool, &user).await.unwrap();
+            add_new_user(&pool, &user).await.unwrap();
         }
+    }
+
+    #[actix_web::test]
+    async fn test_select_friend_list() {
+        let pool = create_pool().await;
+        let friend_list = fetch_friend_list(&pool, 99799836211019858).await.unwrap();
+        println!("{:#?}", friend_list);
+    }
+
+    async fn create_pool() -> Pool<MySql> {
+        dotenv::dotenv().unwrap();
+        sqlx::mysql::MySqlPoolOptions::new()
+            .connect(&env::var("DATABASE_URL").unwrap())
+            .await
+            .unwrap()
     }
 }

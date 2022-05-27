@@ -11,7 +11,7 @@ use sqlx::{MySql, Pool};
 use uuid::Uuid;
 
 use crate::{
-    actions::{users::new_user, User},
+    actions::{users::add_new_user, NewUser},
     auth::decode_google_jwt_with_jwturl,
     session::SessionKey,
 };
@@ -45,9 +45,9 @@ async fn auth(
         return Ok(HttpResponse::build(StatusCode::UNAUTHORIZED).finish());
     }
 
-    let user = User::new(google_payload.sub, google_payload.name);
+    let user = NewUser::new(google_payload.sub, Some(google_payload.name));
 
-    if let Err(e) = new_user(pool.as_ref(), &user).await {
+    if let Err(e) = add_new_user(pool.as_ref(), &user).await {
         log::warn!("{}", &e);
         return Ok(HttpResponse::build(StatusCode::UNAUTHORIZED).finish());
     }

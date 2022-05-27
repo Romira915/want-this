@@ -1,17 +1,17 @@
 CREATE TABLE IF NOT EXISTS users (
-    user_id VARCHAR(30) PRIMARY KEY NOT NULL,
+    google_id VARCHAR(32) PRIMARY KEY NOT NULL,
+    user_id BIGINT UNSIGNED NOT NULL DEFAULT UUID_SHORT(),
     user_name VARCHAR(100),
-    friend_id BIGINT NOT NULL,
     created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
     updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-    INDEX fid_index(friend_id)
+    INDEX idx_uid(user_id)
 );
 CREATE TABLE IF NOT EXISTS friends_relationship (
-    friend_relationship_id INTEGER PRIMARY KEY NOT NULL AUTO_INCREMENT,
-    source BIGINT NOT NULL,
-    destination BIGINT NOT NULL,
+    friend_relationship_id INTEGER UNSIGNED PRIMARY KEY NOT NULL AUTO_INCREMENT,
+    source BIGINT UNSIGNED NOT NULL,
+    destination BIGINT UNSIGNED NOT NULL,
     created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
     updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-    CONSTRAINT fk_src FOREIGN KEY (source) REFERENCES users(friend_id),
-    CONSTRAINT fk_dist FOREIGN KEY (destination) REFERENCES users(friend_id)
+    CONSTRAINT fk_src FOREIGN KEY (source) REFERENCES users(user_id),
+    CONSTRAINT fk_dist FOREIGN KEY (destination) REFERENCES users(user_id)
 );
