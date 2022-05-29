@@ -10,6 +10,7 @@ use actix_redis::RedisSession;
 use actix_session::Session;
 use actix_web::cookie::time::macros::offset;
 use actix_web::cookie::time::UtcOffset;
+use actix_web::web::Data;
 use actix_web::{
     error, get,
     http::{
@@ -34,7 +35,8 @@ use simplelog::{
     WriteLogger,
 };
 use want_this_backend::auth::{decode_google_jwt_with_jwturl, GooglePayload};
-use want_this_backend::service::auth::auth;
+use want_this_backend::domain::repository::user::MySqlUserRepository;
+use want_this_backend::domain::service::auth::auth;
 use want_this_backend::session::SessionKey;
 
 static REDIS_ADDRESS: OnceCell<String> = OnceCell::new();
@@ -206,8 +208,16 @@ async fn main() -> io::Result<()> {
     log::debug!("database url {}", DATABASE_URL.get().unwrap());
 
     let private_key = actix_web::cookie::Key::generate();
+    let pool = sqlx::mysql::MySqlPoolOptions::new()
+        .max_connections(num_cpus as u32)
+        .connect_timeout(Duration::from_secs(1))
+        .connect(DATABASE_URL.get().unwrap())
+        .await
+        .unwrap();
 
     HttpServer::new(move || {
+        let user_repository = MySqlUserRepository::new(pool.clone());
+
         App::new()
             .wrap(middleware::Logger::default())
             .wrap(RedisSession::new(
@@ -221,12 +231,7 @@ async fn main() -> io::Result<()> {
                     .supports_credentials()
                     .allowed_origin(FRONTEND_ORIGIN.get().unwrap())
             })
-            .data_factory(move || {
-                sqlx::mysql::MySqlPoolOptions::new()
-                    .max_connections(num_cpus as u32)
-                    .connect_timeout(Duration::from_secs(1))
-                    .connect(DATABASE_URL.get().unwrap())
-            })
+            .app_data(Data::new(user_repository))
             .service(favicon)
             .service(welcome)
             .service(login)

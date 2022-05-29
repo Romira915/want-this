@@ -19,6 +19,7 @@ serde = {version = "1.0.137", features = ["derive"]}
 simplelog = "0.12.0"
 
 anyhow = "1.0.57"
+async-trait = "0.1.53"
 base64 = "0.13.0"
 chrono = "0.4.19"
 derive_more = "0.99.17"
@@ -39,4 +40,4 @@ testfixtures = {version = "0.1", default-features = false, features = ["runtime-
 tokio = {version = "1.18.2", features = ["full"]}
 
 [profile.dev.package.sqlx-macros]
-opt-level = 1
+opt-level = 3

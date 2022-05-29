@@ -146,20 +146,191 @@ VALUES (
             WHERE google_id = '1'
         )
     );
-select google_id,
-    user_id,
-    user_name
-FROM users
-    INNER JOIN (
-        SELECT follow AS user_id
-        FROM (
-                SELECT source AS follower
-                FROM friends_relationship
-                WHERE destination = 99799836211019858
-            ) AS follower
-            INNER JOIN (
-                SELECT destination AS follow
-                FROM friends_relationship
-                WHERE source = 99799836211019858
-            ) AS follow ON follower.follower = follow.follow
-    ) AS friend_list USING(user_id);
+INSERT IGNORE INTO organizations (
+        organization_name,
+        description,
+        owner
+    )
+VALUES (
+        'Aqours',
+        'LoveLive！Sunshine!!',
+        (
+            SELECT user_id
+            FROM users
+            WHERE google_id = '1'
+        )
+    );
+INSERT IGNORE INTO users_organizations (
+        user_id,
+        organization_id,
+        edit_permission
+    )
+VALUES (
+        (
+            SELECT user_id
+            FROM users
+            WHERE google_id = '1'
+        ),
+        (
+            SELECT organization_id
+            FROM organizations
+            WHERE organization_name = 'Aqours'
+        ),
+        1
+    );
+INSERT IGNORE INTO users_organizations (
+        user_id,
+        organization_id,
+        edit_permission
+    )
+VALUES (
+        (
+            SELECT user_id
+            FROM users
+            WHERE google_id = '2'
+        ),
+        (
+            SELECT organization_id
+            FROM organizations
+            WHERE organization_name = 'Aqours'
+        ),
+        0
+    );
+INSERT IGNORE INTO users_organizations (
+        user_id,
+        organization_id,
+        edit_permission
+    )
+VALUES (
+        (
+            SELECT user_id
+            FROM users
+            WHERE google_id = '3'
+        ),
+        (
+            SELECT organization_id
+            FROM organizations
+            WHERE organization_name = 'Aqours'
+        ),
+        0
+    );
+INSERT IGNORE INTO users_organizations (
+        user_id,
+        organization_id,
+        edit_permission
+    )
+VALUES (
+        (
+            SELECT user_id
+            FROM users
+            WHERE google_id = '4'
+        ),
+        (
+            SELECT organization_id
+            FROM organizations
+            WHERE organization_name = 'Aqours'
+        ),
+        0
+    );
+INSERT IGNORE INTO users_organizations (
+        user_id,
+        organization_id,
+        edit_permission
+    )
+VALUES (
+        (
+            SELECT user_id
+            FROM users
+            WHERE google_id = '5'
+        ),
+        (
+            SELECT organization_id
+            FROM organizations
+            WHERE organization_name = 'Aqours'
+        ),
+        1
+    );
+INSERT IGNORE INTO users_organizations (
+        user_id,
+        organization_id,
+        edit_permission
+    )
+VALUES (
+        (
+            SELECT user_id
+            FROM users
+            WHERE google_id = '6'
+        ),
+        (
+            SELECT organization_id
+            FROM organizations
+            WHERE organization_name = 'Aqours'
+        ),
+        0
+    );
+INSERT IGNORE INTO users_organizations (
+        user_id,
+        organization_id,
+        edit_permission
+    )
+VALUES (
+        (
+            SELECT user_id
+            FROM users
+            WHERE google_id = '7'
+        ),
+        (
+            SELECT organization_id
+            FROM organizations
+            WHERE organization_name = 'Aqours'
+        ),
+        0
+    );
+INSERT IGNORE INTO users_organizations (
+        user_id,
+        organization_id,
+        edit_permission
+    )
+VALUES (
+        (
+            SELECT user_id
+            FROM users
+            WHERE google_id = '8'
+        ),
+        (
+            SELECT organization_id
+            FROM organizations
+            WHERE organization_name = 'Aqours'
+        ),
+        0
+    );
+INSERT IGNORE INTO users_organizations (
+        user_id,
+        organization_id,
+        edit_permission
+    )
+VALUES (
+        (
+            SELECT user_id
+            FROM users
+            WHERE google_id = '9'
+        ),
+        (
+            SELECT organization_id
+            FROM organizations
+            WHERE organization_name = 'Aqours'
+        ),
+        0
+    );
+INSERT IGNORE INTO want_items (
+        having_organization_id,
+        url
+    )
+VALUES (
+        (
+            SELECT organization_id
+            FROM organizations
+            WHERE organization_name = 'Aqours'
+        ),
+        'https://store.steampowered.com/app/1604030/V_Rising/'
+    );

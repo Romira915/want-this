@@ -1,4 +1,4 @@
-pub mod actions;
 pub mod auth;
-pub mod service;
+pub mod domain;
+pub mod infrastructure;
 pub mod session;
