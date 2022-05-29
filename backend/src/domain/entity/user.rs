@@ -1,9 +1,6 @@
 use derive_more::Constructor;
-use uuid::Uuid;
 
-pub(crate) mod users;
-
-#[derive(Debug, Constructor)]
+#[derive(Debug, PartialEq, Eq, Constructor)]
 pub(crate) struct User {
     pub user_id: u64,
     pub google_id: String,

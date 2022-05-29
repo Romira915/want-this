@@ -3292,6 +3292,7 @@ dependencies = [
  "actix-web",
  "anyhow",
  "async-stream 0.3.3",
+ "async-trait",
  "base64 0.13.0",
  "chrono",
  "derive_more",

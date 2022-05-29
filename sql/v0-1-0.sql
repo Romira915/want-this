@@ -1,10 +1,10 @@
 CREATE TABLE IF NOT EXISTS users (
-    google_id VARCHAR(32) PRIMARY KEY NOT NULL,
-    user_id BIGINT UNSIGNED NOT NULL DEFAULT UUID_SHORT(),
+    user_id BIGINT UNSIGNED PRIMARY KEY NOT NULL DEFAULT (uuid_short()),
+    google_id VARCHAR(39) UNIQUE NOT NULL,
     user_name VARCHAR(100),
     created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
     updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-    INDEX idx_user_id(user_id)
+    INDEX idx_google_id(google_id)
 ) ENGINE = InnoDB DEFAULT CHARSET = utf8mb4;
 CREATE TABLE IF NOT EXISTS friends_relationship (
     source BIGINT UNSIGNED NOT NULL,
@@ -18,20 +18,20 @@ CREATE TABLE IF NOT EXISTS friends_relationship (
     INDEX idx_destination(destination)
 ) ENGINE = InnoDB DEFAULT CHARSET = utf8mb4;
 CREATE TABLE IF NOT EXISTS organizations (
-    organization_id BIGINT UNSIGNED PRIMARY KEY NOT NULL DEFAULT UUID_SHORT(),
+    organization_id BIGINT UNSIGNED PRIMARY KEY NOT NULL DEFAULT (uuid_short()),
     organization_name VARCHAR(100) NOT NULL,
     description VARCHAR(255),
-    is_public BOOLEAN NOT NULL DEFAULT false,
+    is_public BOOLEAN NOT NULL DEFAULT (0),
     owner BIGINT UNSIGNED NOT NULL,
     created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
     updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-    CONSTRAINT fk_owner FOREIGN KEY (owner) REFERENCES users(user_id) ON DELETE CASCADE,
-    INDEX idx_org_id(organization_id)
+    CONSTRAINT fk_owner FOREIGN KEY (owner) REFERENCES users(user_id),
+    INDEX idx_org_name(organization_name)
 ) ENGINE = InnoDB DEFAULT CHARSET = utf8mb4;
 CREATE TABLE IF NOT EXISTS users_organizations (
     user_id BIGINT UNSIGNED NOT NULL,
     organization_id BIGINT UNSIGNED NOT NULL,
-    edit_permission BOOLEAN NOT NULL DEFAULT false,
+    edit_permission BOOLEAN NOT NULL DEFAULT (0),
     PRIMARY KEY (user_id, organization_id),
     created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
     updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
@@ -39,10 +39,15 @@ CREATE TABLE IF NOT EXISTS users_organizations (
     CONSTRAINT fk_org_id FOREIGN KEY (organization_id) REFERENCES organizations(organization_id) ON DELETE CASCADE
 ) ENGINE = InnoDB DEFAULT CHARSET = utf8mb4;
 CREATE TABLE IF NOT EXISTS want_items (
-    item_id BIGINT UNSIGNED PRIMARY KEY NOT NULL,
-    organization_id BIGINT UNSIGNED NOT NULL,
-    url VARCHAR(255),
+    item_id BIGINT UNSIGNED PRIMARY KEY NOT NULL DEFAULT (uuid_short()),
+    having_organization_id BIGINT UNSIGNED NOT NULL,
+    url TEXT,
+    title VARCHAR(100),
+    memo VARCHAR(500),
+    created_by BIGINT UNSIGNED,
     created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
     updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-    CONSTRAINT fk_org_id FOREIGN KEY (organization_id) REFERENCES organizations(organization_id) ON DELETE CASCADE
+    CONSTRAINT fk_having_org_id FOREIGN KEY (having_organization_id) REFERENCES organizations(organization_id) ON DELETE CASCADE,
+    CONSTRAINT fk_created_by FOREIGN KEY (created_by) REFERENCES users(user_id) ON DELETE
+    SET NULL
 ) ENGINE = InnoDB DEFAULT CHARSET = utf8mb4;
