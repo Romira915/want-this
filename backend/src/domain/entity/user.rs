@@ -14,6 +14,12 @@ pub(crate) struct NewUser {
 }
 
 #[derive(Debug, Constructor)]
+pub(crate) struct UpdateUser {
+    pub user_id: u64,
+    pub name: String,
+}
+
+#[derive(Debug, Constructor)]
 pub(crate) struct Friend {
     pub friend_id: u64,
 }
