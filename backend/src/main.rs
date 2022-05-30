@@ -106,28 +106,6 @@ async fn login_state(req: HttpRequest, session: Session) -> Result<HttpResponse>
     }
 }
 
-#[post("/login/callback")]
-async fn login(
-    req: HttpRequest,
-    google: web::Form<GoogleOAuth>,
-    session: Session,
-) -> Result<HttpResponse> {
-    let id = session.get::<String>("g_csrf_token")?;
-    let counter = session.get::<i32>("counter")?;
-    session.insert("user_id", &google.g_csrf_token)?;
-    session.renew();
-
-    let google_token = decode_google_jwt_with_jwturl(&google.credential)
-        .await
-        .unwrap();
-    log::debug!("token {:#?}", &google_token);
-
-    // response
-    Ok(HttpResponse::build(StatusCode::MOVED_PERMANENTLY)
-        .append_header((header::LOCATION, "http://localhost:8080/login/state"))
-        .finish())
-}
-
 async fn default_handler(req_method: Method) -> Result<impl Responder> {
     match req_method {
         Method::GET => {
@@ -234,7 +212,6 @@ async fn main() -> io::Result<()> {
             .app_data(Data::new(user_repository))
             .service(favicon)
             .service(welcome)
-            .service(login)
             .service(login_state)
             .service(auth)
             .service(

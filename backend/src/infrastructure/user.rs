@@ -1,7 +1,7 @@
 use anyhow::Context;
 use sqlx::MySqlConnection;
 
-use crate::domain::entity::user::{NewUser, User};
+use crate::domain::entity::user::{NewUser, UpdateUser, User};
 
 pub(crate) struct InternalUserRepository;
 
@@ -32,6 +32,22 @@ impl InternalUserRepository {
         Ok(Self::find_user_by_google_id(conn, &new_user.google_id)
             .await?
             .context("Failed to add_new_user_return_it")?)
+    }
+
+    pub(crate) async fn update_user_name(
+        conn: &mut MySqlConnection,
+        update_user: UpdateUser,
+    ) -> anyhow::Result<u64> {
+        let id = sqlx::query!(
+            "UPDATE users SET user_name = ? WHERE user_id = ?",
+            update_user.name,
+            update_user.user_id
+        )
+        .execute(conn)
+        .await?
+        .last_insert_id();
+
+        Ok(id)
     }
 
     pub(crate) async fn find_user_by_google_id(
@@ -153,7 +169,7 @@ mod tests {
 
     use sqlx::{MySql, Pool, Transaction};
 
-    use crate::domain::entity::user::NewUser;
+    use crate::domain::entity::user::{NewUser, UpdateUser};
 
     use super::InternalUserRepository;
 
@@ -197,6 +213,29 @@ mod tests {
         );
 
         tx.rollback().await?;
+        Ok(())
+    }
+
+    #[tokio::test]
+    async fn test_update_user() -> anyhow::Result<()> {
+        let pool = create_pool().await;
+        let mut tx = pool.begin().await?;
+
+        let google_id = uuid::Uuid::new_v4().as_u128().to_string();
+        let init_name = "高海千歌".to_string();
+        let new_user = NewUser::new(google_id.clone(), Some(init_name.clone()));
+
+        let mut user = InternalUserRepository::add_new_user_return_it(&mut tx, &new_user).await?;
+        assert_eq!(init_name, user.user_name.unwrap());
+
+        let new_name = "渡辺曜".to_string();
+        let update_user = UpdateUser::new(user.user_id, new_name.clone());
+        InternalUserRepository::update_user_name(&mut tx, update_user).await?;
+        let updated_user = InternalUserRepository::find_user_by_user_id(&mut tx, user.user_id)
+            .await?
+            .unwrap();
+        assert_eq!(new_name, updated_user.user_name.unwrap());
+
         Ok(())
     }
 
