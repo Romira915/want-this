@@ -43,6 +43,10 @@ jobs:
         run: |
           docker-compose -f docker-compose.test.yml run wait db:3306 -- echo "MariaDB is up"
 
+      - name: sleep
+        run: |
+          sleep 10
+
       - name: migration mariadb
         run: |
           ./sql/mysqldef -uwantthis wantthis -p want3857 < sql/v0-1-0.sql
