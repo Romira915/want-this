@@ -32,16 +32,16 @@ jobs:
             ./**/target
           key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
 
-      - name: setup mariadb and redis
-        run: |
-          docker-compose -f docker-compose.test.yml build
-          docker-compose -f docker-compose.test.yml up -d
-
       - name: decode secrets file .env
         env:
           DOTEND_ENCODE: ${{ secrets.TEST_DOTENV }}
         run: |
           echo $DOTEND_ENCODE | base64 --decode > .env
+
+      - name: setup mariadb and redis
+        run: |
+          docker-compose -f docker-compose.test.yml build
+          docker-compose -f docker-compose.test.yml up -d
 
       - name: migration mariadb
         run: |
@@ -126,16 +126,16 @@ jobs:
             ./**/target
           key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
 
-      - name: setup mariadb and redis
-        run: |
-          docker-compose -f docker-compose.test.yml build
-          docker-compose -f docker-compose.test.yml up -d
-
       - name: decode secrets file .env
         env:
           DOTEND_ENCODE: ${{ secrets.TEST_DOTENV }}
         run: |
           echo $DOTEND_ENCODE | base64 --decode > .env
+
+      - name: setup mariadb and redis
+        run: |
+          docker-compose -f docker-compose.test.yml build
+          docker-compose -f docker-compose.test.yml up -d
 
       - name: migration mariadb
         run: |
