@@ -45,7 +45,7 @@ jobs:
 
       - name: sleep
         run: |
-          sleep 10
+          sleep 30
 
       - name: migration mariadb
         run: |
