@@ -16,6 +16,7 @@ use crate::{
         entity::{google::GoogleOAuth, user::NewUser},
         repository::user::{MySqlUserRepository, UserRepository},
     },
+    media::save_bytes,
     session::SessionKey,
 };
 
@@ -39,7 +40,33 @@ async fn auth(
         Ok(Some(user)) => user,
         // register
         Ok(None) => {
-            let new_user = NewUser::new(google_payload.sub.clone(), Some(google_payload.name));
+            let icon_path = match reqwest::get(&google_payload.picture).await {
+                Ok(request) => match request.bytes().await {
+                    Ok(bytes) => {
+                        let icon_path =
+                            format!("image/{}/{}", &google_payload.sub, &google_payload.sub);
+                        if let Err(e) = save_bytes(&icon_path, &bytes).await {
+                            log::warn!("{:?}", &e);
+                        }
+
+                        Some(icon_path)
+                    }
+                    Err(e) => {
+                        log::warn!("{:?}", &e);
+                        None
+                    }
+                },
+                Err(e) => {
+                    log::warn!("{:?}", &e);
+                    None
+                }
+            };
+
+            let new_user = NewUser::new(
+                google_payload.sub.clone(),
+                Some(google_payload.name.clone()),
+                icon_path,
+            );
 
             match user_repo.add_new_user_return_it(&new_user).await {
                 Ok(user) => user,
@@ -54,6 +81,7 @@ async fn auth(
             return Ok(HttpResponse::build(StatusCode::UNAUTHORIZED).finish());
         }
     };
+    log::debug!("login user {:?}", google_payload);
 
     if let Err(e) = session.insert(SessionKey::UserId.as_ref(), &user.user_id) {
         log::warn!("Failed to session insert {:?}", &e);
