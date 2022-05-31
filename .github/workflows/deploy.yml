@@ -35,6 +35,7 @@ jobs:
       - name: decode secrets file .env
         env:
           DOTEND_ENCODE: ${{ secrets.TEST_DOTENV }}
+
         run: |
           echo $DOTEND_ENCODE | base64 --decode > .env
 
@@ -129,6 +130,7 @@ jobs:
       - name: decode secrets file .env
         env:
           DOTEND_ENCODE: ${{ secrets.TEST_DOTENV }}
+
         run: |
           echo $DOTEND_ENCODE | base64 --decode > .env
 
