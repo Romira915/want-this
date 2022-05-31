@@ -11,6 +11,7 @@ pub(crate) struct User {
 pub(crate) struct NewUser {
     pub google_id: String,
     pub name: Option<String>,
+    pub icon_path: Option<String>,
 }
 
 #[derive(Debug, Constructor)]

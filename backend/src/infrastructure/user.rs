@@ -11,9 +11,10 @@ impl InternalUserRepository {
         new_user: &NewUser,
     ) -> anyhow::Result<u64> {
         let id = sqlx::query!(
-            "INSERT INTO users (google_id, user_name) VALUES (?, ?);",
+            "INSERT INTO users (google_id, user_name, profile_icon_path) VALUES (?, ?, ?);",
             new_user.google_id,
             new_user.name,
+            new_user.icon_path
         )
         .execute(conn)
         .await
@@ -36,7 +37,7 @@ impl InternalUserRepository {
 
     pub(crate) async fn update_user_name(
         conn: &mut MySqlConnection,
-        update_user: UpdateUser,
+        update_user: &UpdateUser,
     ) -> anyhow::Result<u64> {
         let id = sqlx::query!(
             "UPDATE users SET user_name = ? WHERE user_id = ?",
@@ -157,9 +158,27 @@ impl InternalUserRepository {
     )
     .fetch_all(conn)
     .await
-    .unwrap();
+    .context("Failed to fetch_friend_list")?;
 
         Ok(friend_list)
+    }
+
+    pub(crate) async fn get_icon_path_by_user_id(
+        conn: &mut MySqlConnection,
+        user_id: u64,
+    ) -> anyhow::Result<Option<String>> {
+        let path = sqlx::query!(
+            "SELECT profile_icon_path FROM users WHERE user_id = ?",
+            &user_id
+        )
+        .fetch_optional(conn)
+        .await
+        .context("Failed to get_icon_path_by_user_id")?
+        .expect("query is None");
+
+        let path = path.profile_icon_path;
+
+        Ok(path)
     }
 }
 
@@ -178,17 +197,17 @@ mod tests {
         let pool = create_pool().await;
         let mut tx: Transaction<MySql> = pool.begin().await?;
 
-        let new_user_list = vec![
-            NewUser::new("1".to_string(), Some("高海千歌".to_string())),
-            NewUser::new("2".to_string(), Some("桜内梨子".to_string())),
-            NewUser::new("3".to_string(), Some("松浦果南".to_string())),
-            NewUser::new("4".to_string(), Some("黒澤ダイヤ".to_string())),
-            NewUser::new("5".to_string(), Some("渡辺曜".to_string())),
-            NewUser::new("6".to_string(), Some("津島善子".to_string())),
-            NewUser::new("7".to_string(), Some("国木田花丸".to_string())),
-            NewUser::new("8".to_string(), Some("小原鞠莉".to_string())),
-            NewUser::new("9".to_string(), Some("黒澤ルビィ".to_string())),
-        ];
+        // let new_user_list = vec![
+        //     NewUser::new("1".to_string(), Some("高海千歌".to_string())),
+        //     NewUser::new("2".to_string(), Some("桜内梨子".to_string())),
+        //     NewUser::new("3".to_string(), Some("松浦果南".to_string())),
+        //     NewUser::new("4".to_string(), Some("黒澤ダイヤ".to_string())),
+        //     NewUser::new("5".to_string(), Some("渡辺曜".to_string())),
+        //     NewUser::new("6".to_string(), Some("津島善子".to_string())),
+        //     NewUser::new("7".to_string(), Some("国木田花丸".to_string())),
+        //     NewUser::new("8".to_string(), Some("小原鞠莉".to_string())),
+        //     NewUser::new("9".to_string(), Some("黒澤ルビィ".to_string())),
+        // ];
 
         tx.rollback().await?;
         Ok(())
@@ -200,7 +219,7 @@ mod tests {
         let mut tx = pool.begin().await?;
 
         let google_id = uuid::Uuid::new_v4().as_u128().to_string();
-        let new_user = NewUser::new(google_id.clone(), Some("高海千歌".to_string()));
+        let new_user = NewUser::new(google_id.clone(), Some("高海千歌".to_string()), None);
         assert_eq!(
             None,
             InternalUserRepository::find_user_by_google_id(&mut tx, &google_id).await?
@@ -223,14 +242,14 @@ mod tests {
 
         let google_id = uuid::Uuid::new_v4().as_u128().to_string();
         let init_name = "高海千歌".to_string();
-        let new_user = NewUser::new(google_id.clone(), Some(init_name.clone()));
+        let new_user = NewUser::new(google_id.clone(), Some(init_name.clone()), None);
 
         let mut user = InternalUserRepository::add_new_user_return_it(&mut tx, &new_user).await?;
         assert_eq!(init_name, user.user_name.unwrap());
 
         let new_name = "渡辺曜".to_string();
         let update_user = UpdateUser::new(user.user_id, new_name.clone());
-        InternalUserRepository::update_user_name(&mut tx, update_user).await?;
+        InternalUserRepository::update_user_name(&mut tx, &update_user).await?;
         let updated_user = InternalUserRepository::find_user_by_user_id(&mut tx, user.user_id)
             .await?
             .unwrap();
@@ -245,10 +264,14 @@ mod tests {
         let mut tx = pool.begin().await?;
 
         let source_google_id = uuid::Uuid::new_v4().as_u128().to_string();
-        let source_user = NewUser::new(source_google_id.clone(), Some("高海千歌".to_string()));
+        let source_user =
+            NewUser::new(source_google_id.clone(), Some("高海千歌".to_string()), None);
         let destination_google_id = uuid::Uuid::new_v4().as_u128().to_string();
-        let destination_user =
-            NewUser::new(destination_google_id.clone(), Some("渡辺曜".to_string()));
+        let destination_user = NewUser::new(
+            destination_google_id.clone(),
+            Some("渡辺曜".to_string()),
+            None,
+        );
 
         let source_user =
             InternalUserRepository::add_new_user_return_it(&mut tx, &source_user).await?;

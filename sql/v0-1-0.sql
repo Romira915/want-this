@@ -2,6 +2,8 @@ CREATE TABLE IF NOT EXISTS users (
     user_id BIGINT UNSIGNED PRIMARY KEY NOT NULL DEFAULT (uuid_short()),
     google_id VARCHAR(39) UNIQUE NOT NULL,
     user_name VARCHAR(100),
+    profile_icon_path TEXT,
+    is_public BOOLEAN NOT NULL DEFAULT (0),
     created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
     updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     INDEX idx_google_id(google_id)
