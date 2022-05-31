@@ -1,36 +1,184 @@
 # This is a basic workflow to help you get started with Actions
 
-name: CI
+name: deploy and Release
 
 # Controls when the workflow will run
 on:
   # Triggers the workflow on push or pull request events but only for the main branch
   push:
-    branches: [ main ]
+    branches: [main]
   pull_request:
-    branches: [ main ]
+    branches: [main]
 
   # Allows you to run this workflow manually from the Actions tab
   workflow_dispatch:
 
 # A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs:
+  test:
+    runs-on: ubuntu-20.04
+
+    steps:
+      # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
+      - uses: actions/checkout@v3
+
+      - uses: actions/cache@v3
+        with:
+          path: |
+            ~/.cargo/bin/
+            ~/.cargo/registry/index/
+            ~/.cargo/registry/cache/
+            ~/.cargo/git/db/
+            ./**/target
+          key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
+
+      - name: setup mariadb and redis
+        run: |
+          docker-compose -f docker-compose.test.yml build
+          docker-compose -f docker-compose.test.yml up -d
+
+      - name: decode secrets file .env
+        env:
+          DOTEND_ENCODE: ${{ secrets.TEST_DOTENV }}
+        run: |
+          echo $DOTEND_ENCODE | base64 --decode > .env
+
+      - name: migration mariadb
+        run: |
+          ./sql/mysqldef -uwantthis wantthis -p want3857 < sql/v0-1-0.sql
+
+      - uses: actions-rs/toolchain@v1
+        with:
+          toolchain: stable
+          target: x86_64-unknown-linux-gnu
+          override: true
+          components: rustfmt, clippy
+
+      - uses: actions-rs/cargo@v1
+        with:
+          command: fmt
+          args: --all -- --check
+      - uses: actions-rs/cargo@v1
+        with:
+          command: clippy
+      - uses: actions-rs/cargo@v1
+        with:
+          command: test
+          args: --release --all-features
+
+  build-frontend:
+    needs: [test]
+
+    runs-on: ubuntu-20.04
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - uses: actions/cache@v3
+        with:
+          path: |
+            ~/.cargo/bin/
+            ~/.cargo/registry/index/
+            ~/.cargo/registry/cache/
+            ~/.cargo/git/db/
+            ./**/target
+          key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
+
+      - uses: actions-rs/toolchain@v1
+        with:
+          toolchain: stable
+          target: wasm32-unknown-unknown
+          override: true
+
+      - name: install trunk and wasm-bindgen-cli
+        uses: actions-rs/cargo@v1
+        with:
+          command: install
+          args: trunk wasm-bindgen-cli
+
+      - name: build
+        run: |
+          trunk build --release
+
+      - uses: actions/upload-artifact@v3
+        with:
+          name: frontend-artifact
+          path: frontend/dist
+
   # This workflow contains a single job called "build"
-  build:
+  build-backend:
+    needs: [test]
     # The type of runner that the job will run on
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-20.04
 
     # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
       # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
       - uses: actions/checkout@v3
 
-      # Runs a single command using the runners shell
-      - name: Run a one-line script
-        run: echo Hello, world!
+      - uses: actions/cache@v3
+        with:
+          path: |
+            ~/.cargo/bin/
+            ~/.cargo/registry/index/
+            ~/.cargo/registry/cache/
+            ~/.cargo/git/db/
+            ./**/target
+          key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
 
-      # Runs a set of commands using the runners shell
-      - name: Run a multi-line script
+      - name: setup mariadb and redis
         run: |
-          echo Add other actions to build,
-          echo test, and deploy your project.
+          docker-compose -f docker-compose.test.yml build
+          docker-compose -f docker-compose.test.yml up -d
+
+      - name: decode secrets file .env
+        env:
+          DOTEND_ENCODE: ${{ secrets.TEST_DOTENV }}
+        run: |
+          echo $DOTEND_ENCODE | base64 --decode > .env
+
+      - name: migration mariadb
+        run: |
+          ./sql/mysqldef -uwantthis wantthis -p want3857 < sql/v0-1-0.sql
+
+      - uses: actions-rs/toolchain@v1
+        with:
+          toolchain: stable
+          target: aarch64-unknown-linux-gnu
+          override: true
+
+      - name: install gcc-aarch64-linux-gnu
+        run: |
+          sudo apt install -y gcc-aarch64-linux-gnu
+
+      - uses: actions-rs/cargo@v1
+        with:
+          command: build
+          args: --release --target aarch64-unknown-linux-gnu -p want-this-backend
+
+      - uses: actions/upload-artifact@v3
+        with:
+          name: backend-artifact
+          path: target/aarch64-unknown-linux-gnu/release/want-this-backend
+
+  deploy:
+    needs: [build-frontend, build-backend]
+
+    runs-on: ubuntu-20.04
+
+    steps:
+      - uses: actions/download-artifact@v3
+        with:
+          name: frontend-artifact
+          path: ./frontend
+
+      - uses: actions/download-artifact@v3
+        with:
+          name: backend-artifact
+          path: ./backend
+
+      - name: decode secrets file .env
+        env:
+          DOTEND_ENCODE: ${{ secrets.DEPLOY_DOTENV }}
+        run: |
+          echo $DOTEND_ENCODE | base64 --decode > backend/.env

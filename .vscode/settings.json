@@ -15,5 +15,8 @@
       "username": "wantthis",
       "password": "want3857"
     }
-  ]
+  ],
+  "yaml.schemas": {
+    "https://json.schemastore.org/github-workflow.json": "file:///home/romira/workspace/project/want-this/.github/workflows/deploy.yml"
+  }
 }
