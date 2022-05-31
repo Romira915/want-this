@@ -37,7 +37,7 @@ jobs:
           DOTEND_ENCODE: ${{ secrets.TEST_DOTENV }}
 
         run: |
-          echo $DOTEND_ENCODE | base64 --decode > .env
+          echo -n $DOTEND_ENCODE | base64 --decode > .env
 
       - name: setup mariadb and redis
         run: |
