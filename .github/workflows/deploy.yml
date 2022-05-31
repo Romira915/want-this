@@ -41,7 +41,7 @@ jobs:
 
       - name: setup mariadb and redis
         run: |
-          docker-compose -f docker-compose.test.yml run wait db:3306 -- echo "MariaDB is up"
+          docker-compose -f docker-compose.test.yml up --d --wait"
 
       - name: sleep
         run: |
