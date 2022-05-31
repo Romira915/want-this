@@ -1,6 +1,5 @@
 use anyhow::{bail, Context, Ok, Result};
 use jsonwebtoken::{
-    decode_header,
     jwk::{self, JwkSet},
     DecodingKey, Validation,
 };

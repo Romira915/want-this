@@ -195,7 +195,7 @@ mod tests {
     #[tokio::test]
     async fn test_user_repository() -> anyhow::Result<()> {
         let pool = create_pool().await;
-        let mut tx: Transaction<MySql> = pool.begin().await?;
+        let tx: Transaction<MySql> = pool.begin().await?;
 
         // let new_user_list = vec![
         //     NewUser::new("1".to_string(), Some("高海千歌".to_string())),
