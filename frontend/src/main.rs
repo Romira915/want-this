@@ -63,7 +63,11 @@ fn switch_main(route: &MainRoute) -> Html {
                         data-client_id="839980808596-tq6nkmcik0nrohr079rj4vt5bdhvr15g.apps.googleusercontent.com"
                         data-context="signup"
                         data-ux_mode="popup"
-                        data-login_uri="http://localhost:9080/auth"
+                        data-login_uri={if cfg!(debug_assertions) {
+                            "http://localhost:9080/auth"
+                        } else {
+                            "https://api.want-this.romira.dev/auth"
+                        }}
                         data-auto_prompt="false">
                     </div>
 

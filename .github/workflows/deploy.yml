@@ -115,6 +115,16 @@ jobs:
           name: frontend-artifact
           path: frontend/dist
 
+      - uses: actions/cache@v3
+        with:
+          path: |
+            ~/.cargo/bin/
+            ~/.cargo/registry/index/
+            ~/.cargo/registry/cache/
+            ~/.cargo/git/db/
+            ./**/target
+          key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
+
   # This workflow contains a single job called "build"
   build-backend:
     needs: [test]
@@ -176,6 +186,16 @@ jobs:
         with:
           name: backend-artifact
           path: target/aarch64-unknown-linux-gnu/release/want-this-backend
+
+      - uses: actions/cache@v3
+        with:
+          path: |
+            ~/.cargo/bin/
+            ~/.cargo/registry/index/
+            ~/.cargo/registry/cache/
+            ~/.cargo/git/db/
+            ./**/target
+          key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
 
   deploy:
     needs: [build-frontend, build-backend]
