@@ -74,7 +74,6 @@ async fn favicon() -> Result<impl Responder> {
 async fn welcome(req: HttpRequest, session: Session) -> Result<HttpResponse> {
     println!("{:?}", req);
 
-    // session
     let mut counter = 1;
     if let Some(count) = session.get::<i32>("counter")? {
         println!("SESSION value: {}", count);
