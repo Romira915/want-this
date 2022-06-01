@@ -172,18 +172,17 @@ async fn main() -> io::Result<()> {
 
     let num_cpus = num_cpus::get();
 
-    REDIS_ADDRESS
-        .set(env::var("REDIS_ADDRESS").unwrap())
-        .unwrap();
+    REDIS_ADDRESS.set(env::var("REDIS_URL").unwrap()).unwrap();
     FRONTEND_ORIGIN
         .set(env::var("FRONTEND_ORIGIN").unwrap())
         .unwrap();
     DATABASE_URL
         .set(format!(
-            "mysql://{}:{}@{}/{}",
+            "mysql://{}:{}@{}:{}/{}",
             env::var("MARIADB_USER").unwrap(),
             env::var("MARIADB_PASSWORD").unwrap(),
             env::var("MARIADB_ADDRESS").unwrap(),
+            env::var("MARIADB_PORT").unwrap(),
             env::var("MARIADB_DATABASE").unwrap()
         ))
         .unwrap();
