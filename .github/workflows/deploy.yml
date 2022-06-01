@@ -275,5 +275,5 @@ jobs:
             source ~/.tmp/.env
             wget https://github.com/k0kubun/sqldef/releases/download/v0.11.59/mysqldef_linux_arm64.tar.gz
             tar -zxvf mysqldef_linux_arm64.tar.gz
-            ~/mysqldef -u $MARIADB_USER -h $MARIADB_ADDRESS -P $MARIADB_PORT $MARIADB_DATABASE < ~/.tmp/migration.sql
+            ~/mysqldef -u $MARIADB_USER -h $MARIADB_ADDRESS -P $MARIADB_PORT -p $MARIADB_PASSWORD $MARIADB_DATABASE < ~/.tmp/migration.sql
             sudo systemctl start want-this-backend.service
