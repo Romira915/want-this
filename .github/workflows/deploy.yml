@@ -273,5 +273,7 @@ jobs:
           script: |
             sudo systemctl stop want-this-backend.service
             source ~/.tmp/.env
-            ~/.tmp/mysqldef -u $MARIADB_USER $MARIADB_DATABASE < ~/.tmp/migration.sql
+            wget https://github.com/k0kubun/sqldef/releases/download/v0.11.59/mysqldef_linux_arm64.tar.gz
+            tar -zxvf mysqldef_linux_arm64.tar.gz
+            ~/mysqldef -u $MARIADB_USER $MARIADB_DATABASE < ~/.tmp/migration.sql
             sudo systemctl start want-this-backend.service
