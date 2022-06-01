@@ -234,3 +234,10 @@ jobs:
           draft: false
           prerelease: false
           body: ${{ steps.tag_version.outputs.changelog }}
+
+      - name: Discord notification
+        env:
+          DISCORD_WEBHOOK: ${{ secrets.DISCORD_WEBHOOK }}
+        uses: Ilshidur/action-discord@master
+        with:
+          args: "${{ EVENT_PAYLOAD.repository.full_name }} backend has been deployed."
