@@ -1,5 +1,6 @@
 use std::collections::HashMap;
 use std::fs::{self, File};
+use std::path::Path;
 use std::time::Duration;
 use std::{convert::Infallible, fmt::format};
 use std::{env, io};
@@ -118,7 +119,7 @@ async fn default_handler(req_method: Method) -> Result<impl Responder> {
     }
 }
 
-fn init_logger(log_path: Option<&str>) {
+fn init_logger<P: AsRef<Path>>(log_path: Option<P>) {
     const JST_UTCOFFSET_SECS: i32 = 9 * 3600;
 
     let jst_now = {
@@ -145,7 +146,7 @@ fn init_logger(log_path: Option<&str>) {
         ),
     ];
     if let Some(log_path) = log_path {
-        let log_path = std::path::Path::new(log_path);
+        let log_path = log_path.as_ref();
         fs::create_dir_all(&log_path).unwrap();
         logger.push(WriteLogger::new(
             LevelFilter::Warn,
@@ -163,7 +164,11 @@ async fn main() -> io::Result<()> {
         "RUST_LOG",
         "actix_web=info,actix_redis=info,`actix_server=info",
     );
-    init_logger(None);
+    init_logger(if cfg!(debug_assertions) {
+        None
+    } else {
+        Some("/var/log/want-this")
+    });
 
     let num_cpus = num_cpus::get();
 
@@ -233,10 +238,7 @@ async fn main() -> io::Result<()> {
             .service(
                 web::resource("/").route(web::get().to(|req: HttpRequest| async move {
                     HttpResponse::Found()
-                        .insert_header((
-                            header::LOCATION,
-                            format!("http://{}", FRONTEND_ORIGIN.get().unwrap()),
-                        ))
+                        .insert_header((header::LOCATION, FRONTEND_ORIGIN.get().unwrap().as_str()))
                         .finish()
                 })),
             )
