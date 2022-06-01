@@ -188,7 +188,10 @@ mod tests {
 
     use sqlx::{MySql, Pool, Transaction};
 
-    use crate::domain::entity::user::{NewUser, UpdateUser};
+    use crate::{
+        domain::entity::user::{NewUser, UpdateUser},
+        CONFIG,
+    };
 
     use super::InternalUserRepository;
 
@@ -309,7 +312,7 @@ mod tests {
     async fn create_pool() -> Pool<MySql> {
         dotenv::dotenv().expect("Failed to dotenv");
         sqlx::mysql::MySqlPoolOptions::new()
-            .connect(&env::var("DATABASE_URL").expect("Failed to envkey"))
+            .connect(&CONFIG.database_url)
             .await
             .expect("Failed to pool")
     }
