@@ -106,7 +106,7 @@ jobs:
             ~/.cargo/git/db/
             ./frontend/dist/
             ./**/target
-          key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
+          key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock')-frontend }}
 
       - uses: actions-rs/toolchain@v1
         with:
@@ -160,7 +160,7 @@ jobs:
             ~/.cargo/registry/cache/
             ~/.cargo/git/db/
             ./**/target
-          key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
+          key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock')-backend }}
 
       - name: decode secrets file .env
         env:
