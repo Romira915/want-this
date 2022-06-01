@@ -14,6 +14,8 @@ pub struct Config {
     pub mariadb_password: String,
     pub mariadb_address: String,
     pub mariadb_port: u32,
+    // Debug用
+    pub database_url: String,
     pub redis_url: String,
     pub frontend_origin: String,
 }
