@@ -23,6 +23,7 @@ jobs:
       - uses: actions/checkout@v3
 
       - uses: actions/cache@v3
+        id: cache-cargo
         with:
           path: |
             ~/.cargo/bin/
@@ -85,12 +86,25 @@ jobs:
       - uses: actions/checkout@v3
 
       - uses: actions/cache@v3
+        id: cache-cargo
         with:
           path: |
             ~/.cargo/bin/
             ~/.cargo/registry/index/
             ~/.cargo/registry/cache/
             ~/.cargo/git/db/
+            ./**/target
+          key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
+
+      - uses: actions/cache@v3
+        id: cache-frontend
+        with:
+          path: |
+            ~/.cargo/bin/
+            ~/.cargo/registry/index/
+            ~/.cargo/registry/cache/
+            ~/.cargo/git/db/
+            ./frontend/dist/
             ./**/target
           key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
 
@@ -115,16 +129,6 @@ jobs:
           name: frontend-artifact
           path: frontend/dist
 
-      - uses: actions/cache@v3
-        with:
-          path: |
-            ~/.cargo/bin/
-            ~/.cargo/registry/index/
-            ~/.cargo/registry/cache/
-            ~/.cargo/git/db/
-            ./**/target
-          key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
-
   # This workflow contains a single job called "build"
   build-backend:
     needs: [test]
@@ -137,6 +141,18 @@ jobs:
       - uses: actions/checkout@v3
 
       - uses: actions/cache@v3
+        id: cache-cargo
+        with:
+          path: |
+            ~/.cargo/bin/
+            ~/.cargo/registry/index/
+            ~/.cargo/registry/cache/
+            ~/.cargo/git/db/
+            ./**/target
+          key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
+
+      - uses: actions/cache@v3
+        id: cache-backend
         with:
           path: |
             ~/.cargo/bin/
@@ -186,16 +202,6 @@ jobs:
         with:
           name: backend-artifact
           path: target/aarch64-unknown-linux-gnu/release/want-this-backend
-
-      - uses: actions/cache@v3
-        with:
-          path: |
-            ~/.cargo/bin/
-            ~/.cargo/registry/index/
-            ~/.cargo/registry/cache/
-            ~/.cargo/git/db/
-            ./**/target
-          key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
 
   deploy:
     needs: [build-frontend, build-backend]
