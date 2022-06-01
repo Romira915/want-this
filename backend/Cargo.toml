@@ -24,6 +24,7 @@ base64 = "0.13.0"
 chrono = "0.4.19"
 derive_more = "0.99.17"
 dotenv = "0.15.0"
+envy = "0.4.2"
 getset = "0.1.2"
 image = "0.24.2"
 jsonwebtoken = "8.1.0"
@@ -39,7 +40,6 @@ tokio = {version = "1.18.2", features = ["full"]}
 uuid = {version = "1.1.0", features = ["v4"]}
 
 [dev-dependencies]
-testfixtures = {version = "0.1", default-features = false, features = ["runtime-tokio"]}
 
 [profile.dev.package.sqlx-macros]
 opt-level = 3

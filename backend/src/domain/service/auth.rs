@@ -18,6 +18,7 @@ use crate::{
     },
     media::save_bytes,
     session::SessionKey,
+    CONFIG,
 };
 
 #[post("/auth")]
@@ -98,6 +99,9 @@ async fn auth(
 
     // response
     Ok(HttpResponse::build(StatusCode::MOVED_PERMANENTLY)
-        .append_header((header::LOCATION, "http://localhost:8080/login/state"))
+        .append_header((
+            header::LOCATION,
+            format!("{}/login/state", CONFIG.frontend_origin),
+        ))
         .finish())
 }

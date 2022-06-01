@@ -40,10 +40,7 @@ use want_this_backend::domain::repository::user::MySqlUserRepository;
 use want_this_backend::domain::service::auth::auth;
 use want_this_backend::domain::service::user::icon;
 use want_this_backend::session::SessionKey;
-
-static REDIS_ADDRESS: OnceCell<String> = OnceCell::new();
-static FRONTEND_ORIGIN: OnceCell<String> = OnceCell::new();
-static DATABASE_URL: OnceCell<String> = OnceCell::new();
+use want_this_backend::CONFIG;
 
 #[derive(Debug, Serialize, Deserialize)]
 struct GoogleOAuth {
@@ -172,29 +169,14 @@ async fn main() -> io::Result<()> {
 
     let num_cpus = num_cpus::get();
 
-    REDIS_ADDRESS.set(env::var("REDIS_URL").unwrap()).unwrap();
-    FRONTEND_ORIGIN
-        .set(env::var("FRONTEND_ORIGIN").unwrap())
-        .unwrap();
-    DATABASE_URL
-        .set(format!(
-            "mysql://{}:{}@{}:{}/{}",
-            env::var("MARIADB_USER").unwrap(),
-            env::var("MARIADB_PASSWORD").unwrap(),
-            env::var("MARIADB_ADDRESS").unwrap(),
-            env::var("MARIADB_PORT").unwrap(),
-            env::var("MARIADB_DATABASE").unwrap()
-        ))
-        .unwrap();
-
     log::info!("starting HTTP server at http://0.0.0.0:9080");
-    log::debug!("database url {}", DATABASE_URL.get().unwrap());
+    log::debug!("database url {}", CONFIG.get_database_url());
 
     let private_key = actix_web::cookie::Key::generate();
     let pool = sqlx::mysql::MySqlPoolOptions::new()
         .max_connections(num_cpus as u32)
         .connect_timeout(Duration::from_secs(1))
-        .connect(DATABASE_URL.get().unwrap())
+        .connect(&CONFIG.get_database_url())
         .await
         .unwrap();
 
@@ -203,16 +185,13 @@ async fn main() -> io::Result<()> {
 
         App::new()
             .wrap(middleware::Logger::default())
-            .wrap(RedisSession::new(
-                REDIS_ADDRESS.get().unwrap(),
-                private_key.master(),
-            ))
+            .wrap(RedisSession::new(&CONFIG.redis_url, private_key.master()))
             .wrap(if cfg!(debug_assertions) {
                 Cors::permissive()
             } else {
                 Cors::default()
                     .supports_credentials()
-                    .allowed_origin(FRONTEND_ORIGIN.get().unwrap())
+                    .allowed_origin(&CONFIG.frontend_origin)
             })
             .app_data(Data::new(user_repository))
             .service(favicon)
@@ -237,7 +216,7 @@ async fn main() -> io::Result<()> {
             .service(
                 web::resource("/").route(web::get().to(|req: HttpRequest| async move {
                     HttpResponse::Found()
-                        .insert_header((header::LOCATION, FRONTEND_ORIGIN.get().unwrap().as_str()))
+                        .insert_header((header::LOCATION, CONFIG.frontend_origin.as_str()))
                         .finish()
                 })),
             )
