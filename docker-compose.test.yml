@@ -17,8 +17,6 @@ services:
     restart: always
     ports:
       - 6379:6379
-    volumes:
-      - ./redis/conf:/usr/local/etc/redis
 
   wait:
     image: willwill/wait-for-it:latest
