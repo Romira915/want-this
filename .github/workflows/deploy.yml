@@ -48,10 +48,6 @@ jobs:
         run: |
           docker-compose -f docker-compose.test.yml run wait db:3306 -- echo "MariaDB is up"
 
-      - name: sleep
-        run: |
-          sleep 30
-
       - name: migration mariadb
         run: |
           ./sql/mysqldef -uwantthis wantthis -p want3857 < sql/v0-1-0.sql
@@ -63,14 +59,19 @@ jobs:
           override: true
           components: rustfmt, clippy
 
-      - uses: actions-rs/cargo@v1
+      - name: cargo fmt
+        uses: actions-rs/cargo@v1
         with:
           command: fmt
           args: --all -- --check
-      - uses: actions-rs/cargo@v1
+
+      - name: cargo clippy
+        uses: actions-rs/cargo@v1
         with:
           command: clippy
-      - uses: actions-rs/cargo@v1
+
+      - name: cargo test
+        uses: actions-rs/cargo@v1
         with:
           command: test
           args: --release --all-features
@@ -147,6 +148,10 @@ jobs:
           docker-compose -f docker-compose.test.yml build
           docker-compose -f docker-compose.test.yml up -d --wait
 
+      - name: Wait Database
+        run: |
+          docker-compose -f docker-compose.test.yml run wait db:3306 -- echo "MariaDB is up"
+
       - name: migration mariadb
         run: |
           ./sql/mysqldef -uwantthis wantthis -p want3857 < sql/v0-1-0.sql
@@ -161,7 +166,8 @@ jobs:
         run: |
           sudo apt install -y gcc-aarch64-linux-gnu
 
-      - uses: actions-rs/cargo@v1
+      - name: build
+        uses: actions-rs/cargo@v1
         with:
           command: build
           args: --release --target aarch64-unknown-linux-gnu -p want-this-backend
@@ -192,3 +198,24 @@ jobs:
           DOTEND_ENCODE: ${{ secrets.DEPLOY_DOTENV }}
         run: |
           echo $DOTEND_ENCODE | base64 --decode > backend/.env
+
+      - name: deploy to frontend
+        uses: easingthemes/ssh-deploy@main
+        env:
+          SSH_PRIVATE_KEY: ${{ secrets.SERVER_SSH_KEY }}
+          ARGS: "-rltgoDzvO"
+          SOURCE: "frontend/"
+          REMOTE_HOST: ${{ secrets.REMOTE_HOST }}
+          REMOTE_USER: ${{ secrets.REMOTE_USER }}
+          TARGET: ${{ secrets.REMOTE_FRONTEND_TARGET }}
+
+      - name: deploy to backend
+        uses: easingthemes/ssh-deploy@main
+        env:
+          SSH_PRIVATE_KEY: ${{ secrets.SERVER_SSH_KEY }}
+          ARGS: "-rltgoDzvO"
+          SOURCE: "backend/"
+          REMOTE_HOST: ${{ secrets.REMOTE_HOST }}
+          REMOTE_USER: ${{ secrets.REMOTE_USER }}
+          REMOTE_PORT: ${{ secrets.REMOTE_PORT }}
+          TARGET: ${{ secrets.REMOTE_BACKEND_TARGET }}
