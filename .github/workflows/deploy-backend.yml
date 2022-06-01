@@ -1,12 +1,19 @@
 # This is a basic workflow to help you get started with Actions
 
-name: deploy and Release
+name: deploy and Release backend
 
 # Controls when the workflow will run
 on:
   # Triggers the workflow on push or pull request events but only for the main branch
   push:
     branches: [main]
+    paths:
+      - "backend/**"
+
+  pull_request:
+    types: [opened, reopened, synchronize]
+    paths:
+      - "backend/**"
 
   # Allows you to run this workflow manually from the Actions tab
   workflow_dispatch:
@@ -62,75 +69,23 @@ jobs:
         uses: actions-rs/cargo@v1
         with:
           command: fmt
-          args: --all -- --check
+          args: --all -p want-this-frontend -- --check
 
       - name: cargo clippy
         uses: actions-rs/cargo@v1
         with:
           command: clippy
+          args: -p want-this-frontend
 
       - name: cargo test
         uses: actions-rs/cargo@v1
         with:
           command: test
-          args: --release --all-features
-
-  build-frontend:
-    needs: [test]
-
-    runs-on: ubuntu-20.04
-
-    steps:
-      - uses: actions/checkout@v3
-
-      # いらないんじゃないか説
-      # - uses: actions/cache@v3
-      #   id: cache-cargo
-      #   with:
-      #     path: |
-      #       ~/.cargo/bin/
-      #       ~/.cargo/registry/index/
-      #       ~/.cargo/registry/cache/
-      #       ~/.cargo/git/db/
-      #       ./**/target
-      #     key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
-
-      - uses: actions/cache@v3
-        id: cache-frontend
-        with:
-          path: |
-            ~/.cargo/bin/
-            ~/.cargo/registry/index/
-            ~/.cargo/registry/cache/
-            ~/.cargo/git/db/
-            ./frontend/dist/
-            ./**/target
-          key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}-frontend
-
-      - uses: actions-rs/toolchain@v1
-        with:
-          toolchain: stable
-          target: wasm32-unknown-unknown
-          override: true
-
-      - name: install trunk and wasm-bindgen-cli
-        if: steps.cache-frontend.outputs.cache-hit != 'true'
-        uses: actions-rs/cargo@v1
-        with:
-          command: install
-          args: trunk wasm-bindgen-cli
-
-      - name: build
-        run: |
-          trunk build --release
-
-      - uses: actions/upload-artifact@v3
-        with:
-          name: frontend-artifact
-          path: frontend/dist
+          args: --release -p want-this-frontend --all-features
 
   # This workflow contains a single job called "build"
   build-backend:
+    if: ${{ github.event_name == 'push' }}
     needs: [test]
     # The type of runner that the job will run on
     runs-on: ubuntu-20.04
@@ -205,18 +160,13 @@ jobs:
           path: target/aarch64-unknown-linux-gnu/release/want-this-backend
 
   deploy:
-    needs: [build-frontend, build-backend]
+    needs: [build-backend]
 
     runs-on: ubuntu-20.04
 
     steps:
       # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
       - uses: actions/checkout@v3
-
-      - uses: actions/download-artifact@v3
-        with:
-          name: frontend-artifact
-          path: ./target-frontend
 
       - uses: actions/download-artifact@v3
         with:
@@ -229,17 +179,6 @@ jobs:
         run: |
           echo $DOTEND_ENCODE | base64 --decode > target-backend/.env
           cp target-backend/.env sql/
-
-      - name: deploy to frontend
-        uses: easingthemes/ssh-deploy@main
-        env:
-          SSH_PRIVATE_KEY: ${{ secrets.SERVER_SSH_KEY }}
-          ARGS: "-rltgoDzvO --rsync-path='sudo rsync'"
-          SOURCE: "target-frontend/"
-          REMOTE_HOST: ${{ secrets.REMOTE_HOST }}
-          REMOTE_USER: ${{ secrets.REMOTE_USER }}
-          REMOTE_PORT: ${{ secrets.REMOTE_PORT }}
-          TARGET: ${{ secrets.REMOTE_FRONTEND_TARGET }}
 
       - name: deploy to backend
         uses: easingthemes/ssh-deploy@main
