@@ -62,7 +62,7 @@ impl InternalOrganizationRepository {
         let org = sqlx::query_as!(
             Organization,
             "SELECT organization_id, organization_name, description, is_public, owner 
-             FROM organizations WHERE organization_id = ?",
+             FROM organizations WHERE organization_id = ?;",
             org_id
         )
         .fetch_all(conn)
@@ -79,7 +79,7 @@ impl InternalOrganizationRepository {
     ) -> anyhow::Result<u64> {
         let org_name = take_n_str(org_name, MAX_LEN_ORG_NAME);
         let id = sqlx::query!(
-            "UPDATE organizations SET organization_name = ? WHERE organization_id = ?",
+            "UPDATE organizations SET organization_name = ? WHERE organization_id = ?;",
             org_name,
             org_id
         )
@@ -98,7 +98,7 @@ impl InternalOrganizationRepository {
     ) -> anyhow::Result<u64> {
         let org_description = take_n_str(org_description, MAX_LEN_ORG_DESCRIPTION);
         let id = sqlx::query!(
-            "UPDATE organizations SET description = ? WHERE organization_id = ?",
+            "UPDATE organizations SET description = ? WHERE organization_id = ?;",
             org_description,
             org_id
         )
@@ -116,7 +116,7 @@ impl InternalOrganizationRepository {
         is_public: bool,
     ) -> anyhow::Result<u64> {
         let id = sqlx::query!(
-            "UPDATE organizations SET is_public = ? WHERE organization_id = ?",
+            "UPDATE organizations SET is_public = ? WHERE organization_id = ?;",
             is_public,
             org_id
         )
@@ -134,7 +134,7 @@ impl InternalOrganizationRepository {
         owner_id: bool,
     ) -> anyhow::Result<u64> {
         let id = sqlx::query!(
-            "UPDATE organizations SET owner = ? WHERE organization_id = ?",
+            "UPDATE organizations SET owner = ? WHERE organization_id = ?;",
             owner_id,
             org_id
         )
@@ -155,7 +155,7 @@ impl InternalOrganizationRepository {
             "SELECT organization_id, organization_name, description, is_public, owner 
         FROM organizations INNER JOIN
         (SELECT organization_id FROM users_organizations WHERE user_id = ?) AS joined_list
-        USING(organization_id)",
+        USING(organization_id);",
             user_id
         )
         .fetch_all(conn)
@@ -174,7 +174,7 @@ impl InternalOrganizationRepository {
             "SELECT user_id, google_id, user_name
         FROM users INNER JOIN
         (SELECT user_id FROM users_organizations WHERE organization_id = ?) AS joined_list
-        USING(user_id)",
+        USING(user_id);",
             org_id
         )
         .fetch_all(conn)
