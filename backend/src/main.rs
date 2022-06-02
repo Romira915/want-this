@@ -145,7 +145,7 @@ fn init_logger<P: AsRef<Path>>(log_path: Option<P>) {
         let log_path = log_path.as_ref();
         fs::create_dir_all(&log_path).unwrap();
         logger.push(WriteLogger::new(
-            LevelFilter::Warn,
+            LevelFilter::Info,
             config.build(),
             File::create(log_path.join(format!("{}.log", jst_now))).unwrap(),
         ));

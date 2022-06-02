@@ -80,6 +80,7 @@ fn switch_main(route: &MainRoute) -> Html {
                         data-locale="ja"
                         data-logo_alignment="left">
                     </div>
+
                 </div>
             }
         }
@@ -166,7 +167,6 @@ pub fn state() -> Html {
 pub fn app() -> Html {
     html! {
         <BrowserRouter>
-            <script src="https://accounts.google.com/gsi/client"></script>
 
 
             <Switch<MainRoute> render={Switch::render(switch_main)} />
