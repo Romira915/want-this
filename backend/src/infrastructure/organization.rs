@@ -1,7 +1,10 @@
 use anyhow::Context;
 use sqlx::{Connection, MySqlConnection};
 
-use crate::domain::entity::organization::{JoinOrganization, NewOrganization, Organization};
+use crate::domain::entity::{
+    organization::{JoinOrganization, NewOrganization, Organization},
+    user::User,
+};
 
 use super::take_n_str;
 
@@ -141,5 +144,43 @@ impl InternalOrganizationRepository {
         .last_insert_id();
 
         Ok(id)
+    }
+
+    pub(crate) async fn fetch_joined_org_list(
+        conn: &mut MySqlConnection,
+        user_id: u64,
+    ) -> anyhow::Result<Vec<Organization>> {
+        let org_list = sqlx::query_as!(
+            Organization,
+            "SELECT organization_id, organization_name, description, is_public, owner 
+        FROM organizations INNER JOIN
+        (SELECT organization_id FROM users_organizations WHERE user_id = ?) AS joined_list
+        USING(organization_id)",
+            user_id
+        )
+        .fetch_all(conn)
+        .await
+        .context("Failed to fetch_joined_org_list")?;
+
+        Ok(org_list)
+    }
+
+    pub(crate) async fn fetch_joined_user_list(
+        conn: &mut MySqlConnection,
+        org_id: u64,
+    ) -> anyhow::Result<Vec<User>> {
+        let user_list = sqlx::query_as!(
+            User,
+            "SELECT user_id, google_id, user_name
+        FROM users INNER JOIN
+        (SELECT user_id FROM users_organizations WHERE organization_id = ?) AS joined_list
+        USING(user_id)",
+            org_id
+        )
+        .fetch_all(conn)
+        .await
+        .context("Failed to fetch_joined_user_list")?;
+
+        Ok(user_list)
     }
 }
