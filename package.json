@@ -1,4 +1,8 @@
 {
+  "scripts": {
+    "tw.dev": "tailwindcss -o frontend/tailwind.css --watch",
+    "tw.release": "tailwindcss -o frontend/tailwind.css --minify"
+  },
   "devDependencies": {
     "tailwindcss": "^3.0.24"
   }
