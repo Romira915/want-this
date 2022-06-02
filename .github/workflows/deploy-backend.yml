@@ -56,7 +56,10 @@ jobs:
 
       - name: migration mariadb
         run: |
-          ./sql/mysqldef -uwantthis wantthis -p want3857 < sql/migration.sql
+          source .env
+          wget https://github.com/k0kubun/sqldef/releases/download/v0.11.59/mysqldef_linux_amd64.tar.gz
+          tar -zxvf mysqldef_linux_amd64.tar.gz
+          ./mysqldef -u $MARIADB_USER -p $MARIADB_PASSWORD $MARIADB_DATABASE < sql/migration.sql
 
       - uses: actions-rs/toolchain@v1
         with:
@@ -136,7 +139,10 @@ jobs:
 
       - name: migration mariadb
         run: |
-          ./sql/mysqldef -uwantthis wantthis -p want3857 < sql/migration.sql
+          source .env
+          wget https://github.com/k0kubun/sqldef/releases/download/v0.11.59/mysqldef_linux_amd64.tar.gz
+          tar -zxvf mysqldef_linux_amd64.tar.gz
+          ./mysqldef -u $MARIADB_USER -p $MARIADB_PASSWORD $MARIADB_DATABASE < sql/migration.sql
 
       - uses: actions-rs/toolchain@v1
         with:
