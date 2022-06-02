@@ -3,7 +3,12 @@ use sqlx::{Connection, MySqlConnection};
 
 use crate::domain::entity::organization::{JoinOrganization, NewOrganization, Organization};
 
+use super::take_n_str;
+
 pub(crate) struct InternalOrganizationRepository;
+
+const MAX_LEN_ORG_NAME: usize = 100;
+const MAX_LEN_ORG_DESCRIPTION: usize = 255;
 
 impl InternalOrganizationRepository {
     pub(crate) async fn create_organization(
@@ -11,11 +16,12 @@ impl InternalOrganizationRepository {
         org_id: u64,
         new_org: &NewOrganization,
     ) -> anyhow::Result<u64> {
+        let name = take_n_str(&new_org.name, MAX_LEN_ORG_NAME);
         let id = sqlx::query!(
             "INSERT INTO organizations (organization_id, organization_name, description, owner)
             VALUES (?, ?, ?, ?);",
             org_id,
-            new_org.name,
+            name,
             new_org.description,
             new_org.owner_id
         )
@@ -61,5 +67,79 @@ impl InternalOrganizationRepository {
         .context("Failed to find_org_by_org_id")?;
 
         Ok(org)
+    }
+
+    pub(crate) async fn update_org_name(
+        conn: &mut MySqlConnection,
+        org_id: u64,
+        org_name: &str,
+    ) -> anyhow::Result<u64> {
+        let org_name = take_n_str(org_name, MAX_LEN_ORG_NAME);
+        let id = sqlx::query!(
+            "UPDATE organizations SET organization_name = ? WHERE organization_id = ?",
+            org_name,
+            org_id
+        )
+        .execute(conn)
+        .await
+        .context("Failed to update_org_name")?
+        .last_insert_id();
+
+        Ok(id)
+    }
+
+    pub(crate) async fn update_org_description(
+        conn: &mut MySqlConnection,
+        org_id: u64,
+        org_description: &str,
+    ) -> anyhow::Result<u64> {
+        let org_description = take_n_str(org_description, MAX_LEN_ORG_DESCRIPTION);
+        let id = sqlx::query!(
+            "UPDATE organizations SET description = ? WHERE organization_id = ?",
+            org_description,
+            org_id
+        )
+        .execute(conn)
+        .await
+        .context("Failed to update_org_description")?
+        .last_insert_id();
+
+        Ok(id)
+    }
+
+    pub(crate) async fn update_is_public(
+        conn: &mut MySqlConnection,
+        org_id: u64,
+        is_public: bool,
+    ) -> anyhow::Result<u64> {
+        let id = sqlx::query!(
+            "UPDATE organizations SET is_public = ? WHERE organization_id = ?",
+            is_public,
+            org_id
+        )
+        .execute(conn)
+        .await
+        .context("Failed to update_is_public")?
+        .last_insert_id();
+
+        Ok(id)
+    }
+
+    pub(crate) async fn update_owner(
+        conn: &mut MySqlConnection,
+        org_id: u64,
+        owner_id: bool,
+    ) -> anyhow::Result<u64> {
+        let id = sqlx::query!(
+            "UPDATE organizations SET owner = ? WHERE organization_id = ?",
+            owner_id,
+            org_id
+        )
+        .execute(conn)
+        .await
+        .context("Failed to update_owner")?
+        .last_insert_id();
+
+        Ok(id)
     }
 }

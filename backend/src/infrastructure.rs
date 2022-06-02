@@ -13,3 +13,12 @@ pub(crate) async fn create_uuid_short(conn: &mut MySqlConnection) -> anyhow::Res
 
     Ok(uuid)
 }
+
+fn take_n_str(s: &str, n: usize) -> &str {
+    if s.chars().count() <= n {
+        s
+    } else {
+        let end = s.char_indices().nth(n).expect("Invalid value n").0;
+        &s[0..end]
+    }
+}
