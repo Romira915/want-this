@@ -3,17 +3,26 @@ use sqlx::MySqlConnection;
 
 use crate::domain::entity::user::{NewUser, UpdateUser, User};
 
+use super::take_n_str;
+
 pub(crate) struct InternalUserRepository;
+
+const MAX_LEN_USER_NAME: usize = 100;
 
 impl InternalUserRepository {
     pub(crate) async fn add_new_user(
         conn: &mut MySqlConnection,
         new_user: &NewUser,
     ) -> anyhow::Result<u64> {
+        let name = if let Some(name) = new_user.name.as_ref() {
+            Some(take_n_str(name, MAX_LEN_USER_NAME))
+        } else {
+            None
+        };
         let id = sqlx::query!(
             "INSERT INTO users (google_id, user_name, profile_icon_path) VALUES (?, ?, ?);",
             new_user.google_id,
-            new_user.name,
+            name,
             new_user.icon_path
         )
         .execute(conn)
@@ -39,9 +48,10 @@ impl InternalUserRepository {
         conn: &mut MySqlConnection,
         update_user: &UpdateUser,
     ) -> anyhow::Result<u64> {
+        let name = take_n_str(&update_user.name, MAX_LEN_USER_NAME);
         let id = sqlx::query!(
             "UPDATE users SET user_name = ? WHERE user_id = ?",
-            update_user.name,
+            name,
             update_user.user_id
         )
         .execute(conn)
