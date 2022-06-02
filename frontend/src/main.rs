@@ -1,7 +1,7 @@
 use wasm_bindgen::{JsCast, JsValue};
 use wasm_bindgen_futures::JsFuture;
 use web_sys::RequestCredentials;
-use web_sys::{window, Request, RequestInit, RequestMode, Response};
+use web_sys::{Request, RequestInit, RequestMode, Response};
 use yew::{html::Scope, prelude::*};
 use yew_hooks::prelude::*;
 
