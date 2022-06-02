@@ -56,8 +56,8 @@ fn switch_main(route: &MainRoute) -> Html {
         MainRoute::Home => {
             html! {
                 <div>
-                    // <button class="bg-red-500 hover:bg-violet-500 active:bg-violet-700 focus:outline-none focus:ring focus:ring-violet-300 ...">{ "+1" }</button>
-                    // <button class="bg-violet-500 hover:bg-violet-600 active:bg-violet-700 focus:outline-none focus:ring focus:ring-violet-300 ...">{ "-1" }</button>
+                    <button class="bg-red-500 hover:bg-violet-500 active:bg-violet-700 focus:outline-none focus:ring focus:ring-violet-300 ...">{ "+1" }</button>
+                    <button class="bg-violet-500 hover:bg-violet-600 active:bg-violet-700 focus:outline-none focus:ring focus:ring-violet-300 ...">{ "-1" }</button>
                     <Link<MainRoute> to={MainRoute::News}>{ "click here to go home" }</Link<MainRoute>>
                     <script src="https://accounts.google.com/gsi/client"></script>
 
