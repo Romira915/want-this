@@ -1,6 +1,7 @@
 use anyhow::Context;
 use sqlx::MySqlConnection;
 
+pub(crate) mod item;
 pub(crate) mod organization;
 pub(crate) mod user;
 

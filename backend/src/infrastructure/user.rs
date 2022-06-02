@@ -5,9 +5,8 @@ use crate::domain::entity::user::{NewUser, UpdateUser, User};
 
 use super::take_n_str;
 
-pub(crate) struct InternalUserRepository;
-
 const MAX_LEN_USER_NAME: usize = 100;
+pub(crate) struct InternalUserRepository;
 
 impl InternalUserRepository {
     pub(crate) async fn add_new_user(

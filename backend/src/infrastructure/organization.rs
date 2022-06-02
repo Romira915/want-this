@@ -8,10 +8,10 @@ use crate::domain::entity::{
 
 use super::take_n_str;
 
-pub(crate) struct InternalOrganizationRepository;
-
 const MAX_LEN_ORG_NAME: usize = 100;
 const MAX_LEN_ORG_DESCRIPTION: usize = 255;
+
+pub(crate) struct InternalOrganizationRepository;
 
 impl InternalOrganizationRepository {
     pub(crate) async fn create_organization(
