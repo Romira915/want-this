@@ -123,7 +123,14 @@ fn switch_login(route: &LoginRoute) -> Html {
 #[function_component(State)]
 pub fn state() -> Html {
     let state = use_async_with_options(
-        async move { fetch("http://localhost:9080/login/state").await },
+        async move {
+            fetch(if cfg!(debug_assertions) {
+                "http://localhost:9080/login/state"
+            } else {
+                "https://api.want-this.romira.dev/login/state"
+            })
+            .await
+        },
         UseAsyncOptions::enable_auto(),
     );
     log::info!("{:?}", &state.data);
