@@ -35,6 +35,18 @@ services:
       - CARGO_BUILD_TARGET_DIR=/tmp/cargo/target
     command: /bin/bash -c "trunk serve"
 
+  css-build:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: develop
+    volumes:
+      - ./package.json:/want-this/package.json
+      - ./tailwind.config.js:/want-this/tailwind.config.js
+      - ./frontend:/want-this/frontend
+    command: /bin/bash -c "yarn tw.dev"
+    tty: true
+
   db:
     image: mariadb:latest
     restart: always
