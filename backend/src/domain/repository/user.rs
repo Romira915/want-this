@@ -1,5 +1,6 @@
 use anyhow::Context;
 use async_trait::async_trait;
+use derive_more::Constructor;
 use sqlx::{MySql, Pool};
 
 use crate::{
@@ -21,14 +22,9 @@ pub(crate) trait UserRepository {
     async fn get_icon_path_by_user_id(&self, user_id: u64) -> anyhow::Result<Option<String>>;
 }
 
+#[derive(Debug, Constructor)]
 pub struct MySqlUserRepository {
     pool: Pool<MySql>,
-}
-
-impl MySqlUserRepository {
-    pub fn new(pool: Pool<MySql>) -> Self {
-        Self { pool }
-    }
 }
 
 #[async_trait]
