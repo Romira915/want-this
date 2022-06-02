@@ -219,7 +219,6 @@ async fn main() -> io::Result<()> {
                         .finish()
                 })),
             )
-            // default
             .default_service(web::to(default_handler))
     })
     .bind(("0.0.0.0", 9080))?
