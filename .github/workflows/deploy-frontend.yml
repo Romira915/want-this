@@ -28,7 +28,7 @@ jobs:
       - uses: actions/checkout@v3
 
       - uses: actions/cache@v3
-        id: cache-cargo
+        id: cache-test
         with:
           path: |
             ~/.cargo/bin/
@@ -37,6 +37,25 @@ jobs:
             ~/.cargo/git/db/
             ./**/target
           key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
+
+      - name: Get yarn cache directory path
+        id: yarn-cache-dir-path
+        run: echo "::set-output name=dir::$(yarn cache dir)"
+
+      - uses: actions/cache@v3
+        id: yarn-cache # use this to check for `cache-hit` (`steps.yarn-cache.outputs.cache-hit != 'true'`)
+        with:
+          path: ${{ steps.yarn-cache-dir-path.outputs.dir }}
+          key: ${{ runner.os }}-yarn-${{ hashFiles('**/yarn.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-yarn-
+
+      - uses: actions/setup-node@v3
+        with:
+          node-version: 16
+          cache: "yarn"
+      - run: yarn add --dev tailwindcss
+      - run: yarn tw.release
 
       - uses: actions-rs/toolchain@v1
         with:
@@ -95,6 +114,25 @@ jobs:
             ./frontend/dist/
             ./**/target
           key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}-frontend
+
+      - name: Get yarn cache directory path
+        id: yarn-cache-dir-path
+        run: echo "::set-output name=dir::$(yarn cache dir)"
+
+      - uses: actions/cache@v3
+        id: yarn-cache # use this to check for `cache-hit` (`steps.yarn-cache.outputs.cache-hit != 'true'`)
+        with:
+          path: ${{ steps.yarn-cache-dir-path.outputs.dir }}
+          key: ${{ runner.os }}-yarn-${{ hashFiles('**/yarn.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-yarn-
+
+      - uses: actions/setup-node@v3
+        with:
+          node-version: 16
+          cache: "yarn"
+      - run: yarn add --dev tailwindcss
+      - run: yarn tw.release
 
       - uses: actions-rs/toolchain@v1
         with:
