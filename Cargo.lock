@@ -3191,10 +3191,13 @@ name = "want-this-frontend"
 version = "0.1.0"
 dependencies = [
  "console_error_panic_hook",
+ "derive_more",
  "gloo-utils",
  "js-sys",
  "log",
+ "once_cell",
  "reqwasm",
+ "serde",
  "wasm-bindgen",
  "wasm-bindgen-futures",
  "wasm-logger",

@@ -1,9 +1,12 @@
+use want_this_frontend::CONFIG;
 use wasm_bindgen::{JsCast, JsValue};
 use wasm_bindgen_futures::JsFuture;
 use web_sys::RequestCredentials;
 use web_sys::{Request, RequestInit, RequestMode, Response};
 use yew::{html::Scope, prelude::*};
 use yew_hooks::prelude::*;
+
+use want_this_frontend::header::Header;
 
 mod bindings;
 
@@ -56,6 +59,7 @@ fn switch_main(route: &MainRoute) -> Html {
         MainRoute::Home => {
             html! {
                 <div>
+                    <Header />
                     <button class="bg-red-500 hover:bg-violet-500 active:bg-violet-700 focus:outline-none focus:ring focus:ring-violet-300 ...">{ "+1" }</button>
                     <button class="bg-violet-500 hover:bg-violet-600 active:bg-violet-700 focus:outline-none focus:ring focus:ring-violet-300 ...">{ "-1" }</button>
                     <Link<MainRoute> to={MainRoute::News}>{ "click here to go home" }</Link<MainRoute>>
@@ -65,11 +69,7 @@ fn switch_main(route: &MainRoute) -> Html {
                         data-client_id="839980808596-tq6nkmcik0nrohr079rj4vt5bdhvr15g.apps.googleusercontent.com"
                         data-context="signup"
                         data-ux_mode="popup"
-                        data-login_uri={if cfg!(debug_assertions) {
-                            "http://localhost:9080/auth"
-                        } else {
-                            "https://api.want-this.romira.dev/auth"
-                        }}
+                        data-login_uri={format!("{}/auth",CONFIG.backend_origin)}
                         data-auto_prompt="false">
                     </div>
 
@@ -126,14 +126,7 @@ fn switch_login(route: &LoginRoute) -> Html {
 #[function_component(State)]
 pub fn state() -> Html {
     let state = use_async_with_options(
-        async move {
-            fetch(if cfg!(debug_assertions) {
-                "http://localhost:9080/login/state"
-            } else {
-                "https://api.want-this.romira.dev/login/state"
-            })
-            .await
-        },
+        async move { fetch(&format!("{}/login/state", CONFIG.backend_origin)).await },
         UseAsyncOptions::enable_auto(),
     );
     log::info!("{:?}", &state.data);
@@ -176,7 +169,7 @@ pub fn app() -> Html {
     }
 }
 
-async fn fetch(url: &'static str) -> Result<String, JsValue> {
+async fn fetch(url: &str) -> Result<String, JsValue> {
     let mut opts = RequestInit::new();
     opts.method("GET")
         .mode(RequestMode::Cors)
