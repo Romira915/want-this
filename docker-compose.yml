@@ -1,51 +1,51 @@
 version: "3.9"
 
 services:
-  backend:
-    build:
-      context: .
-      dockerfile: backend/Dockerfile
-      target: develop
-    ports:
-      - 9080:9080
-    volumes:
-      - .:/want-this-backend
-      - cargo-target:/tmp/cargo/target
-    environment:
-      - CARGO_BUILD_TARGET_DIR=/tmp/cargo/target
-      - DATABASE_URL=mysql://${MARIADB_USER}:${MARIADB_PASSWORD}@db:3306/${MARIADB_DATABASE}
-    command: /bin/bash -c "cargo watch -w backend -x 'run -p want-this-backend'"
-    depends_on:
-      db:
-        condition: service_started
-      redis:
-        condition: service_started
+  # backend:
+  #   build:
+  #     context: .
+  #     dockerfile: backend/Dockerfile
+  #     target: develop
+  #   ports:
+  #     - 9080:9080
+  #   volumes:
+  #     - .:/want-this-backend
+  #     - cargo-target:/tmp/cargo/target
+  #   environment:
+  #     - CARGO_BUILD_TARGET_DIR=/tmp/cargo/target
+  #     - DATABASE_URL=mysql://${MARIADB_USER}:${MARIADB_PASSWORD}@db:3306/${MARIADB_DATABASE}
+  #   command: /bin/bash -c "cargo watch -w backend -x 'run -p want-this-backend'"
+  #   depends_on:
+  #     db:
+  #       condition: service_started
+  #     redis:
+  #       condition: service_started
 
-  frontend:
-    build:
-      context: .
-      dockerfile: frontend/Dockerfile
-      target: develop
-    ports:
-      - 8080:8080
-    volumes:
-      - .:/want-this-frontend
-      - cargo-target:/tmp/cargo/target
-    environment:
-      - CARGO_BUILD_TARGET_DIR=/tmp/cargo/target
-    command: /bin/bash -c "trunk serve"
+  # frontend:
+  #   build:
+  #     context: .
+  #     dockerfile: frontend/Dockerfile
+  #     target: develop
+  #   ports:
+  #     - 8080:8080
+  #   volumes:
+  #     - .:/want-this-frontend
+  #     - cargo-target:/tmp/cargo/target
+  #   environment:
+  #     - CARGO_BUILD_TARGET_DIR=/tmp/cargo/target
+  #   command: /bin/bash -c "trunk serve"
 
-  css-build:
-    build:
-      context: .
-      dockerfile: Dockerfile
-      target: develop
-    volumes:
-      - ./package.json:/want-this/package.json
-      - ./tailwind.config.js:/want-this/tailwind.config.js
-      - ./frontend:/want-this/frontend
-    command: /bin/bash -c "yarn tw.dev"
-    tty: true
+  # css-build:
+  #   build:
+  #     context: .
+  #     dockerfile: Dockerfile
+  #     target: develop
+  #   volumes:
+  #     - ./package.json:/want-this/package.json
+  #     - ./tailwind.config.js:/want-this/tailwind.config.js
+  #     - ./frontend:/want-this/frontend
+  #   command: /bin/bash -c "yarn tw.dev"
+  #   tty: true
 
   db:
     image: mariadb:latest
