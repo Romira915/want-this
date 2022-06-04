@@ -1,7 +1,7 @@
 use yew::{function_component, html, Html};
 
-#[function_component(Header)]
-pub fn header() -> Html {
+#[function_component(_Header)]
+pub fn _header() -> Html {
     html!(
             <div class="relative bg-white">
         <div class="max-w-7xl mx-auto px-4 sm:px-6">
