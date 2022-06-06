@@ -3,7 +3,6 @@ use once_cell::sync::Lazy;
 use serde::Deserialize;
 
 pub mod component;
-pub mod header;
 
 #[derive(Debug, Deserialize, Constructor)]
 pub struct Config {
