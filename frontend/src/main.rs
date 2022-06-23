@@ -7,8 +7,6 @@ use web_sys::{Request, RequestInit, RequestMode, Response};
 use yew::{html::Scope, prelude::*};
 use yew_hooks::prelude::*;
 
-mod bindings;
-
 use yew_hooks::use_async;
 use yew_router::prelude::*;
 
