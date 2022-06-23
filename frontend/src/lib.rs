@@ -11,7 +11,7 @@ pub struct Config {
 
 pub static CONFIG: Lazy<Config> = Lazy::new(|| {
     Config::new(if cfg!(debug_assertions) {
-        "http://localhost:9080"
+        "http://localhost:4080"
     } else {
         "https://api.want-this.romira.dev"
     })
