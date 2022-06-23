@@ -12,13 +12,13 @@ pub fn header() -> Html {
                     viewBox="0 0 24 24">
                     <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"></path>
                 </svg>
-                <span class="ml-3 text-xl">{"Tailblocks"}</span>
+                <span class="ml-3 text-xl">{"Want This"}</span>
             </a>
             <nav class="md:ml-auto flex flex-wrap items-center text-base justify-center">
-                <a class="mr-5 hover:text-white">{"First Link"}</a>
-                <a class="mr-5 hover:text-white">{"Second Link"}</a>
-                <a class="mr-5 hover:text-white">{"Third Link"}</a>
-                <a class="mr-5 hover:text-white">{"Fourth Link"}</a>
+                <a class="mr-5 hover:text-white">{"Home"}</a>
+                <a class="mr-5 hover:text-white">{"Friend"}</a>
+                <a class="mr-5 hover:text-white">{"Team"}</a>
+                <a class="mr-5 hover:text-white">{"Login"}</a>
             </nav>
             <button
                 class="inline-flex items-center bg-gray-800 border-0 py-1 px-3 focus:outline-none hover:bg-gray-700 rounded text-base mt-4 md:mt-0">{"Button"}
