@@ -221,7 +221,7 @@ async fn main() -> io::Result<()> {
             )
             .default_service(web::to(default_handler))
     })
-    .bind(("0.0.0.0", 9080))?
+    .bind(("0.0.0.0", 4080))?
     .workers(num_cpus)
     .run()
     .await
