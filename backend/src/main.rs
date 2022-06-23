@@ -168,7 +168,7 @@ async fn main() -> io::Result<()> {
 
     let num_cpus = num_cpus::get();
 
-    log::info!("starting HTTP server at http://0.0.0.0:9080");
+    log::info!("starting HTTP server at http://0.0.0.0:4080");
     log::debug!("database url {}", CONFIG.get_database_url());
 
     let private_key = actix_web::cookie::Key::generate();

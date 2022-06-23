@@ -2,6 +2,7 @@ use derive_more::Constructor;
 use once_cell::sync::Lazy;
 use serde::Deserialize;
 
+pub mod bindings;
 pub mod component;
 
 #[derive(Debug, Deserialize, Constructor)]
