@@ -2,7 +2,7 @@
   "scripts": {
     "tw.dev": "tailwindcss -o frontend/tailwind.css --watch",
     "tw.release": "tailwindcss -o frontend/tailwind.css --minify",
-    "infra.dev": "docker-compose up --build",
+    "infra.dev": "docker compose up --build",
     "frontend.dev": "trunk serve",
     "backend.dev": "cargo watch -w backend -x 'run -p want-this-backend'",
     "dev": "run-p infra.dev frontend.dev tw.dev backend.dev"
