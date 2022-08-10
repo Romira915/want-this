@@ -1,9 +1,15 @@
+use crate::component::header::Header;
 use derive_more::Constructor;
 use once_cell::sync::Lazy;
+use route::main::{switch_main, MainRoute};
 use serde::Deserialize;
+use yew::{function_component, html};
+use yew_router::prelude::*;
 
+pub(crate) mod api;
 pub mod bindings;
 pub mod component;
+pub mod route;
 
 #[derive(Debug, Deserialize, Constructor)]
 pub struct Config {
@@ -17,3 +23,13 @@ pub static CONFIG: Lazy<Config> = Lazy::new(|| {
         "https://api.want-this.romira.dev"
     })
 });
+
+#[function_component(App)]
+pub fn app() -> Html {
+    html! {
+        <BrowserRouter>
+            <Header />
+            <Switch<MainRoute> render={Switch::render(switch_main)} />
+        </BrowserRouter>
+    }
+}
