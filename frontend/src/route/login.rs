@@ -1,5 +1,5 @@
 use crate::component::State;
-use yew::{html::Scope, prelude::*};
+use yew::{prelude::*};
 use yew_router::prelude::*;
 
 use super::main::MainRoute;

@@ -1,5 +1,5 @@
 use crate::component::login::LoginButton;
-use yew::{function_component, html, Html};
+use yew::{function_component, html};
 
 #[function_component(Cta)]
 pub fn cta() -> Html {
