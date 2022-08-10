@@ -1,3 +1,4 @@
+use want_this_frontend::component::cta::Cta;
 use want_this_frontend::component::header::Header;
 use want_this_frontend::CONFIG;
 use wasm_bindgen::{JsCast, JsValue};
@@ -158,8 +159,7 @@ pub fn state() -> Html {
 pub fn app() -> Html {
     html! {
         <BrowserRouter>
-        <Header />
-
+            <Header />
             <Switch<MainRoute> render={Switch::render(switch_main)} />
         </BrowserRouter>
     }
