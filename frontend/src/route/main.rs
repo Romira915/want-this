@@ -1,5 +1,5 @@
 use crate::component::cta::Cta;
-use yew::{prelude::*};
+use yew::prelude::*;
 use yew_router::prelude::*;
 
 use super::{
@@ -11,10 +11,12 @@ use super::{
 pub(crate) enum MainRoute {
     #[at("/")]
     Home,
-    #[at("/news")]
-    News,
-    #[at("/contact")]
-    Contact,
+    #[at("/friend")]
+    Friend,
+    #[at("team")]
+    Team,
+    #[at("/mypage")]
+    MyPage,
     #[at("/settings/:s")]
     Settings,
     #[at("/login/:s")]
@@ -31,8 +33,15 @@ pub(crate) fn switch_main(route: &MainRoute) -> Html {
                <Cta />
             }
         }
-        MainRoute::News => html! {<h1>{"News"}</h1>},
-        MainRoute::Contact => html! {<h1>{"Contact"}</h1>},
+        MainRoute::Friend => html! {
+            <h1> {"Frend"} </h1>
+        },
+        MainRoute::Team => html! {
+            <h1> {"Team"} </h1>
+        },
+        MainRoute::MyPage => html! {
+            <h1> {"MyPage"} </h1>
+        },
         MainRoute::Login => html! {
             <Switch<LoginRoute> render={Switch::render(switch_login)} />
         },
