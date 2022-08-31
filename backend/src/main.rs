@@ -93,6 +93,7 @@ async fn welcome(req: HttpRequest, session: Session) -> Result<HttpResponse> {
 #[get("login/state")]
 async fn login_state(req: HttpRequest, session: Session) -> Result<HttpResponse> {
     let id = session.get::<String>(SessionKey::GoogleId.as_ref())?;
+    log::debug!("state {:?}", id);
 
     match id {
         Some(id) => Ok(HttpResponse::build(StatusCode::OK)

@@ -97,6 +97,11 @@ async fn auth(
         return Ok(HttpResponse::build(StatusCode::UNAUTHORIZED).finish());
     }
 
+    log::debug!(
+        "google_id {:?}",
+        session.get::<String>(SessionKey::GoogleId.as_ref())
+    );
+
     // response
     Ok(HttpResponse::build(StatusCode::MOVED_PERMANENTLY)
         .append_header((
