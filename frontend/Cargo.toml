@@ -23,6 +23,8 @@ yew = "0.19.3"
 yew-hooks = "0.1.56"
 yew-router = "0.16"
 
+json_format = {path = "../json_format"}
+
 [dependencies.web-sys]
 features = [
   "Headers",
