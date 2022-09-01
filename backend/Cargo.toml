@@ -39,6 +39,8 @@ strum = {version = "0.24", features = ["derive"]}
 tokio = {version = "1.18.2", features = ["fs", "rt", "macros", "test-util"]}
 uuid = {version = "1.1.0", features = ["v4"]}
 
+json_format = {path = "../json_format/"}
+
 [dev-dependencies]
 
 [profile.dev.package.sqlx-macros]

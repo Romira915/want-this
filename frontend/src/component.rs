@@ -1,3 +1,4 @@
+use json_format::User;
 use yew::{function_component, html};
 use yew_hooks::{use_async_with_options, UseAsyncOptions};
 
@@ -9,35 +10,27 @@ pub mod login;
 
 #[function_component(State)]
 pub(crate) fn state() -> Html {
-    let state = use_async_with_options(
-        async move { fetch(&format!("{}/login/state", CONFIG.backend_origin)).await },
+    let handle = use_async_with_options(
+        async move { fetch::<User>(&format!("{}/login/state", CONFIG.backend_origin)).await },
         UseAsyncOptions::enable_auto(),
     );
-    log::info!("{:?}", &state.data);
+    log::debug!("{:?}", &handle.data);
+
+    let display = if handle.loading {
+        "Loading".to_string()
+    } else if let Some(user) = &handle.data {
+        user.google_id.clone().unwrap_or_else(|| "None".to_string())
+    } else if let Some(e) = &handle.error {
+        e.to_string()
+    } else {
+        String::new()
+    };
 
     html!(
-                <div>
-                {
-                    if state.loading {
-                        html! { "Loading" }
-                    } else {
-                        html! { "end" }
-                    }
-                }
-                {
-                    if let Some(data) = &state.data {
-                        html! { data }
-                    } else {
-                        html! {}
-                    }
-                }
-                {
-                    if let Some(error) = &state.error {
-                        html! { format!("{:?}",error) }
-                    } else {
-                        html! {}
-                    }
-                }
-            </div>
+        <div>
+            {
+               display
+            }
+        </div>
     )
 }

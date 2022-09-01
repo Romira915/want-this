@@ -25,6 +25,7 @@ use actix_web::{
 use actix_web::{http, HttpMessage};
 use async_stream::stream;
 use chrono::{FixedOffset, Utc};
+use json_format::User;
 use jsonwebtoken::{decode, decode_header, jwk, DecodingKey, Validation};
 use log::LevelFilter;
 use oauth2::basic::BasicClient;
@@ -95,14 +96,11 @@ async fn login_state(req: HttpRequest, session: Session) -> Result<HttpResponse>
     let id = session.get::<String>(SessionKey::GoogleId.as_ref())?;
     log::debug!("state {:?}", id);
 
-    match id {
-        Some(id) => Ok(HttpResponse::build(StatusCode::OK)
-            .content_type(ContentType::plaintext())
-            .body(format!("Your id {}", id))),
-        None => Ok(HttpResponse::build(StatusCode::OK)
-            .content_type(ContentType::plaintext())
-            .body(format!("Your id {}", "None"))),
-    }
+    let user = User::new(id);
+
+    Ok(HttpResponse::build(StatusCode::OK)
+        .content_type(ContentType::json())
+        .json(&user))
 }
 
 async fn default_handler(req_method: Method) -> Result<impl Responder> {
