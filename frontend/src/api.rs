@@ -27,7 +27,7 @@ where
         .await
         .map_err(|e| Error { msg: e.to_string() });
 
-    let t: T = resp?.json().await.unwrap();
+    let json: T = resp?.json().await.unwrap();
 
-    Ok(t)
+    Ok(json)
 }
