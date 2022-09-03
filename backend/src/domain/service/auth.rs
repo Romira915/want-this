@@ -36,6 +36,7 @@ async fn auth(
 
     session.renew();
 
+    // TODO: 分離する
     let user = match user_repo.find_user_by_google_id(&google_payload.sub).await {
         // exist already
         Ok(Some(user)) => user,
