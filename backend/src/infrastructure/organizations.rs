@@ -1,9 +1,10 @@
 use anyhow::Context;
+use json_format::Organization;
 use sqlx::{Connection, MySqlConnection};
 
 use crate::domain::entity::{
-    organization::{JoinOrganization, NewOrganization, Organization},
-    user::User,
+    organizations::{JoinOrganization, NewOrganization},
+    users::User,
 };
 
 use super::take_n_str;
@@ -146,7 +147,22 @@ impl InternalOrganizationRepository {
         Ok(id)
     }
 
-    pub(crate) async fn fetch_joined_org_list(
+    pub(crate) async fn fetch_public_orgs(
+        conn: &mut MySqlConnection,
+    ) -> anyhow::Result<Vec<Organization>> {
+        let org_list = sqlx::query_as!(
+            Organization,
+            "SELECT organization_id, organization_name, description, is_public, owner 
+        FROM organizations WHERE is_public = 1"
+        )
+        .fetch_all(conn)
+        .await
+        .context("Failed to fetch_public_org_list")?;
+
+        Ok(org_list)
+    }
+
+    pub(crate) async fn fetch_joined_orgs(
         conn: &mut MySqlConnection,
         user_id: u64,
     ) -> anyhow::Result<Vec<Organization>> {
@@ -165,7 +181,7 @@ impl InternalOrganizationRepository {
         Ok(org_list)
     }
 
-    pub(crate) async fn fetch_joined_user_list(
+    pub(crate) async fn fetch_joined_users(
         conn: &mut MySqlConnection,
         org_id: u64,
     ) -> anyhow::Result<Vec<User>> {

@@ -1,3 +1,4 @@
+-- users
 INSERT IGNORE INTO users (google_id, user_name)
 VALUES ('1', '高海千歌');
 INSERT IGNORE INTO users (google_id, user_name)
@@ -16,6 +17,8 @@ INSERT IGNORE INTO users (google_id, user_name)
 VALUES ('8', '小原鞠莉');
 INSERT IGNORE INTO users (google_id, user_name)
 VALUES ('9', '黒澤ルビィ');
+-- uesrs
+-- friends
 INSERT IGNORE INTO friends_relationship (source, destination)
 VALUES (
         (
@@ -146,6 +149,8 @@ VALUES (
             WHERE google_id = '1'
         )
     );
+-- friends
+-- org
 INSERT IGNORE INTO organizations (
         organization_name,
         description,
@@ -160,6 +165,117 @@ VALUES (
             WHERE google_id = '1'
         )
     );
+INSERT IGNORE INTO organizations (
+        organization_name,
+        description,
+        owner
+    )
+VALUES (
+        '虹ヶ咲学園スクールアイドル同好会',
+        'LoveLive！虹ヶ咲学園スクールアイドル同好会',
+        (
+            SELECT user_id
+            FROM users
+            WHERE google_id = '1'
+        )
+    );
+INSERT IGNORE INTO organizations (
+        organization_name,
+        description,
+        is_public,
+        owner
+    )
+VALUES (
+        'Liella !',
+        'LoveLive！スーパースター ! !',
+        1,
+        (
+            SELECT user_id
+            FROM users
+            WHERE google_id = '1'
+        )
+    );
+INSERT IGNORE INTO organizations (
+        organization_name,
+        description,
+        is_public,
+        owner
+    )
+VALUES (
+        'org_0',
+        'debug data',
+        1,
+        (
+            SELECT user_id
+            FROM users
+            WHERE google_id = '1'
+        )
+    );
+INSERT IGNORE INTO organizations (
+        organization_name,
+        description,
+        is_public,
+        owner
+    )
+VALUES (
+        'org_1',
+        'debug data',
+        1,
+        (
+            SELECT user_id
+            FROM users
+            WHERE google_id = '1'
+        )
+    );
+INSERT IGNORE INTO organizations (
+        organization_name,
+        description,
+        is_public,
+        owner
+    )
+VALUES (
+        'org_2',
+        'debug data',
+        1,
+        (
+            SELECT user_id
+            FROM users
+            WHERE google_id = '1'
+        )
+    );
+INSERT IGNORE INTO organizations (
+        organization_name,
+        description,
+        is_public,
+        owner
+    )
+VALUES (
+        'org_3',
+        'debug data',
+        1,
+        (
+            SELECT user_id
+            FROM users
+            WHERE google_id = '1'
+        )
+    );
+INSERT IGNORE INTO organizations (
+        organization_name,
+        description,
+        is_public,
+        owner
+    )
+VALUES (
+        'org_4',
+        'debug data',
+        1,
+        (
+            SELECT user_id
+            FROM users
+            WHERE google_id = '1'
+        )
+    );
+-- org
 INSERT IGNORE INTO users_organizations (
         user_id,
         organization_id,
