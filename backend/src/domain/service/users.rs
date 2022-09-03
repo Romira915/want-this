@@ -13,14 +13,14 @@ use tokio::{
 };
 
 use crate::{
-    domain::repository::user::{MySqlUserRepository, UserRepository},
+    domain::repositories::users::{MySqlUsersRepository, UsersRepository},
     media::load_bytes,
 };
 
 #[get("/users/{user_id}/icon")]
 async fn icon(
     path: web::Path<u64>,
-    user_repo: Data<MySqlUserRepository>,
+    user_repo: Data<MySqlUsersRepository>,
 ) -> Result<impl Responder> {
     let user_id = path.into_inner();
 

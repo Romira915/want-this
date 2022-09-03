@@ -14,8 +14,8 @@ use uuid::Uuid;
 use crate::{
     auth::decode_google_jwt_with_jwturl,
     domain::{
-        entity::{google::GoogleOAuth, user::NewUser},
-        repository::user::{MySqlUserRepository, UserRepository},
+        entity::{google::GoogleOAuth, users::NewUser},
+        repositories::users::{MySqlUsersRepository, UsersRepository},
     },
     media::save_bytes,
     session::SessionKey,
@@ -27,7 +27,7 @@ async fn auth(
     _req: HttpRequest,
     google: web::Form<GoogleOAuth>,
     session: Session,
-    user_repo: Data<MySqlUserRepository>,
+    users_repo: Data<MySqlUsersRepository>,
 ) -> Result<HttpResponse> {
     let google_payload = if let Ok(g) = decode_google_jwt_with_jwturl(&google.credential).await {
         g
@@ -38,7 +38,7 @@ async fn auth(
     session.renew();
 
     // TODO: 分離する
-    let user = match user_repo.find_user_by_google_id(&google_payload.sub).await {
+    let user = match users_repo.find_user_by_google_id(&google_payload.sub).await {
         // exist already
         Ok(Some(user)) => user,
         // register
@@ -71,7 +71,7 @@ async fn auth(
                 icon_path,
             );
 
-            match user_repo.add_new_user_return_it(&new_user).await {
+            match users_repo.add_new_user_return_it(&new_user).await {
                 Ok(user) => user,
                 Err(e) => {
                     log::warn!("{:?}", &e);
@@ -105,8 +105,8 @@ async fn auth(
     );
 
     // response
-    Ok(HttpResponse::build(StatusCode::MOVED_PERMANENTLY)
-        .append_header((
+    Ok(HttpResponse::SeeOther()
+        .insert_header((
             header::LOCATION,
             format!("{}/login/state", CONFIG.frontend_origin),
         ))
@@ -123,5 +123,7 @@ async fn logout(_req: HttpRequest, session: Session) -> Result<HttpResponse> {
     );
     session.clear();
 
-    Ok(HttpResponse::Ok().finish())
+    Ok(HttpResponse::SeeOther()
+        .insert_header((header::LOCATION, format!("{}/", CONFIG.frontend_origin)))
+        .finish())
 }

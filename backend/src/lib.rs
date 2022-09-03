@@ -6,6 +6,7 @@ pub mod domain;
 pub mod infrastructure;
 pub mod media;
 pub mod session;
+pub(crate) mod utility;
 
 #[derive(Debug, Deserialize)]
 pub struct Config {

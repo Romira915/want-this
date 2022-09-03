@@ -1,7 +1,7 @@
 use anyhow::Context;
 use sqlx::MySqlConnection;
 
-use crate::domain::entity::user::{NewUser, UpdateUser, User};
+use crate::domain::entity::users::{NewUser, UpdateUser, User};
 
 use super::take_n_str;
 
@@ -109,7 +109,7 @@ impl InternalUserRepository {
         Ok(())
     }
 
-    pub(crate) async fn fetch_follow_list(
+    pub(crate) async fn fetch_follows(
         conn: &mut MySqlConnection,
         source_user_id: u64,
     ) -> anyhow::Result<Vec<User>> {
@@ -128,7 +128,7 @@ impl InternalUserRepository {
         Ok(follow_list)
     }
 
-    pub(crate) async fn fetch_follower_list(
+    pub(crate) async fn fetch_followers(
         conn: &mut MySqlConnection,
         destination_user_id: u64,
     ) -> anyhow::Result<Vec<User>> {
@@ -147,7 +147,7 @@ impl InternalUserRepository {
         Ok(follow_list)
     }
 
-    pub(crate) async fn fetch_friend_list(
+    pub(crate) async fn fetch_friends(
         conn: &mut MySqlConnection,
         user_id: u64,
     ) -> anyhow::Result<Vec<User>> {
@@ -198,7 +198,7 @@ mod tests {
     use sqlx::{MySql, Pool, Transaction};
 
     use crate::{
-        domain::entity::user::{NewUser, UpdateUser},
+        domain::entity::users::{NewUser, UpdateUser},
         CONFIG,
     };
 
@@ -298,11 +298,11 @@ mod tests {
         .await?;
 
         let followed_user =
-            InternalUserRepository::fetch_follow_list(&mut tx, source_user.user_id).await?;
+            InternalUserRepository::fetch_follows(&mut tx, source_user.user_id).await?;
         assert_eq!(&destinatino_user, followed_user.first().unwrap());
 
         let follow_user =
-            InternalUserRepository::fetch_follower_list(&mut tx, destinatino_user.user_id).await?;
+            InternalUserRepository::fetch_followers(&mut tx, destinatino_user.user_id).await?;
         assert_eq!(&source_user, follow_user.first().unwrap());
 
         InternalUserRepository::add_follow_user(
@@ -312,7 +312,7 @@ mod tests {
         )
         .await?;
         let friend_list =
-            InternalUserRepository::fetch_friend_list(&mut tx, source_user.user_id).await?;
+            InternalUserRepository::fetch_friends(&mut tx, source_user.user_id).await?;
         assert_eq!(&destinatino_user, friend_list.first().unwrap());
 
         Ok(())

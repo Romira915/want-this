@@ -1,4 +1,4 @@
 pub mod google;
-pub mod item;
-pub mod organization;
-pub mod user;
+pub mod items;
+pub mod organizations;
+pub mod users;
