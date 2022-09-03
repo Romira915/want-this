@@ -38,7 +38,7 @@ use simplelog::{
 };
 use want_this_backend::auth::{decode_google_jwt_with_jwturl, GooglePayload};
 use want_this_backend::domain::repository::user::MySqlUserRepository;
-use want_this_backend::domain::service::auth::auth;
+use want_this_backend::domain::service::auth::{auth, logout};
 use want_this_backend::domain::service::user::icon;
 use want_this_backend::session::SessionKey;
 use want_this_backend::CONFIG;
@@ -196,6 +196,7 @@ async fn main() -> io::Result<()> {
             .service(welcome)
             .service(login_state)
             .service(auth)
+            .service(logout)
             .service(icon)
             .service(
                 web::resource("/test").to(|req: HttpRequest| match *req.method() {

@@ -1,5 +1,6 @@
 use actix_session::Session;
 use actix_web::{
+    get,
     http::header,
     post,
     web::{self, Data},
@@ -110,4 +111,17 @@ async fn auth(
             format!("{}/login/state", CONFIG.frontend_origin),
         ))
         .finish())
+}
+
+#[get("/auth/logout")]
+async fn logout(_req: HttpRequest, session: Session) -> Result<HttpResponse> {
+    log::info!(
+        "[logout] {}",
+        session
+            .get::<u64>(SessionKey::UserId.as_ref())?
+            .unwrap_or_default()
+    );
+    session.clear();
+
+    Ok(HttpResponse::Ok().finish())
 }
