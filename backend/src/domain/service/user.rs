@@ -17,7 +17,7 @@ use crate::{
     media::load_bytes,
 };
 
-#[get("/user/{user_id}/icon")]
+#[get("/users/{user_id}/icon")]
 async fn icon(
     path: web::Path<u64>,
     user_repo: Data<MySqlUserRepository>,

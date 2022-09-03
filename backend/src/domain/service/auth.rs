@@ -1,5 +1,6 @@
 use actix_session::Session;
 use actix_web::{
+    get,
     http::header,
     post,
     web::{self, Data},
@@ -36,6 +37,7 @@ async fn auth(
 
     session.renew();
 
+    // TODO: 分離する
     let user = match user_repo.find_user_by_google_id(&google_payload.sub).await {
         // exist already
         Ok(Some(user)) => user,
@@ -97,6 +99,11 @@ async fn auth(
         return Ok(HttpResponse::build(StatusCode::UNAUTHORIZED).finish());
     }
 
+    log::debug!(
+        "google_id {:?}",
+        session.get::<String>(SessionKey::GoogleId.as_ref())
+    );
+
     // response
     Ok(HttpResponse::build(StatusCode::MOVED_PERMANENTLY)
         .append_header((
@@ -104,4 +111,17 @@ async fn auth(
             format!("{}/login/state", CONFIG.frontend_origin),
         ))
         .finish())
+}
+
+#[get("/auth/logout")]
+async fn logout(_req: HttpRequest, session: Session) -> Result<HttpResponse> {
+    log::info!(
+        "[logout] {}",
+        session
+            .get::<u64>(SessionKey::UserId.as_ref())?
+            .unwrap_or_default()
+    );
+    session.clear();
+
+    Ok(HttpResponse::Ok().finish())
 }

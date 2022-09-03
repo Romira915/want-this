@@ -25,6 +25,7 @@ use actix_web::{
 use actix_web::{http, HttpMessage};
 use async_stream::stream;
 use chrono::{FixedOffset, Utc};
+use json_format::User;
 use jsonwebtoken::{decode, decode_header, jwk, DecodingKey, Validation};
 use log::LevelFilter;
 use oauth2::basic::BasicClient;
@@ -37,7 +38,7 @@ use simplelog::{
 };
 use want_this_backend::auth::{decode_google_jwt_with_jwturl, GooglePayload};
 use want_this_backend::domain::repository::user::MySqlUserRepository;
-use want_this_backend::domain::service::auth::auth;
+use want_this_backend::domain::service::auth::{auth, logout};
 use want_this_backend::domain::service::user::icon;
 use want_this_backend::session::SessionKey;
 use want_this_backend::CONFIG;
@@ -93,15 +94,13 @@ async fn welcome(req: HttpRequest, session: Session) -> Result<HttpResponse> {
 #[get("login/state")]
 async fn login_state(req: HttpRequest, session: Session) -> Result<HttpResponse> {
     let id = session.get::<String>(SessionKey::GoogleId.as_ref())?;
+    log::debug!("state {:?}", id);
 
-    match id {
-        Some(id) => Ok(HttpResponse::build(StatusCode::OK)
-            .content_type(ContentType::plaintext())
-            .body(format!("Your id {}", id))),
-        None => Ok(HttpResponse::build(StatusCode::OK)
-            .content_type(ContentType::plaintext())
-            .body(format!("Your id {}", "None"))),
-    }
+    let user = User::new(id);
+
+    Ok(HttpResponse::build(StatusCode::OK)
+        .content_type(ContentType::json())
+        .json(&user))
 }
 
 async fn default_handler(req_method: Method) -> Result<impl Responder> {
@@ -197,6 +196,7 @@ async fn main() -> io::Result<()> {
             .service(welcome)
             .service(login_state)
             .service(auth)
+            .service(logout)
             .service(icon)
             .service(
                 web::resource("/test").to(|req: HttpRequest| match *req.method() {
