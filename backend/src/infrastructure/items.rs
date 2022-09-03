@@ -1,7 +1,7 @@
 use anyhow::Context;
 use sqlx::MySqlConnection;
 
-use crate::domain::entity::item::NewItem;
+use crate::domain::entity::items::NewItem;
 
 use super::take_n_str;
 
