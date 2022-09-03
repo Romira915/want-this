@@ -1,9 +1,9 @@
 use anyhow::Context;
 use sqlx::MySqlConnection;
 
-pub(crate) mod item;
-pub(crate) mod organization;
-pub(crate) mod user;
+pub(crate) mod items;
+pub(crate) mod organizations;
+pub(crate) mod users;
 
 pub(crate) async fn create_uuid_short(conn: &mut MySqlConnection) -> anyhow::Result<u64> {
     let uuid = sqlx::query!("SELECT uuid_short() as uuid;")

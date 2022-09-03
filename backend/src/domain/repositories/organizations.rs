@@ -1,14 +1,15 @@
 use anyhow::Context;
 use async_trait::async_trait;
 use derive_more::Constructor;
+use json_format::Organization;
 use sqlx::{MySql, Pool};
 
 use crate::{
     domain::entity::{
-        organization::{JoinOrganization, NewOrganization, Organization},
-        user::User,
+        organizations::{JoinOrganization, NewOrganization},
+        users::User,
     },
-    infrastructure::{create_uuid_short, organization::InternalOrganizationRepository},
+    infrastructure::{create_uuid_short, organizations::InternalOrganizationRepository},
 };
 
 #[async_trait]
@@ -24,8 +25,9 @@ pub(crate) trait OrganizationsRepository {
     ) -> anyhow::Result<u64>;
     async fn update_is_public(&self, org_id: u64, is_public: bool) -> anyhow::Result<u64>;
     async fn update_owner(&self, org_id: u64, owner_id: bool) -> anyhow::Result<u64>;
-    async fn fetch_joined_org_list(&self, user_id: u64) -> anyhow::Result<Vec<Organization>>;
-    async fn fetch_joined_user_list(&self, org_id: u64) -> anyhow::Result<Vec<User>>;
+    async fn fetch_public_orgs(&self) -> anyhow::Result<Vec<Organization>>;
+    async fn fetch_joined_orgs(&self, user_id: u64) -> anyhow::Result<Vec<Organization>>;
+    async fn fetch_joined_users(&self, org_id: u64) -> anyhow::Result<Vec<User>>;
 }
 
 #[derive(Debug, Constructor)]
@@ -85,15 +87,21 @@ impl OrganizationsRepository for MySqlOrganizationsRepository {
         InternalOrganizationRepository::update_owner(&mut conn, org_id, owner_id).await
     }
 
-    async fn fetch_joined_org_list(&self, user_id: u64) -> anyhow::Result<Vec<Organization>> {
+    async fn fetch_public_orgs(&self) -> anyhow::Result<Vec<Organization>> {
         let mut conn = self.pool.acquire().await.context("Failed to acquire")?;
 
-        InternalOrganizationRepository::fetch_joined_org_list(&mut conn, user_id).await
+        InternalOrganizationRepository::fetch_public_orgs(&mut conn).await
     }
 
-    async fn fetch_joined_user_list(&self, org_id: u64) -> anyhow::Result<Vec<User>> {
+    async fn fetch_joined_orgs(&self, user_id: u64) -> anyhow::Result<Vec<Organization>> {
         let mut conn = self.pool.acquire().await.context("Failed to acquire")?;
 
-        InternalOrganizationRepository::fetch_joined_user_list(&mut conn, org_id).await
+        InternalOrganizationRepository::fetch_joined_orgs(&mut conn, user_id).await
+    }
+
+    async fn fetch_joined_users(&self, org_id: u64) -> anyhow::Result<Vec<User>> {
+        let mut conn = self.pool.acquire().await.context("Failed to acquire")?;
+
+        InternalOrganizationRepository::fetch_joined_users(&mut conn, org_id).await
     }
 }

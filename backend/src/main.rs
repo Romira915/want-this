@@ -37,9 +37,11 @@ use simplelog::{
     WriteLogger,
 };
 use want_this_backend::auth::{decode_google_jwt_with_jwturl, GooglePayload};
-use want_this_backend::domain::repository::user::MySqlUserRepository;
+use want_this_backend::domain::repositories::organizations::MySqlOrganizationsRepository;
+use want_this_backend::domain::repositories::users::MySqlUsersRepository;
 use want_this_backend::domain::service::auth::{auth, logout};
-use want_this_backend::domain::service::user::icon;
+use want_this_backend::domain::service::organizations::get_organizations;
+use want_this_backend::domain::service::users::icon;
 use want_this_backend::session::SessionKey;
 use want_this_backend::CONFIG;
 
@@ -179,7 +181,8 @@ async fn main() -> io::Result<()> {
         .unwrap();
 
     HttpServer::new(move || {
-        let user_repository = MySqlUserRepository::new(pool.clone());
+        let users_repository = MySqlUsersRepository::new(pool.clone());
+        let orgs_repository = MySqlOrganizationsRepository::new(pool.clone());
 
         App::new()
             .wrap(middleware::Logger::default())
@@ -191,13 +194,15 @@ async fn main() -> io::Result<()> {
                     .supports_credentials()
                     .allowed_origin(&CONFIG.frontend_origin)
             })
-            .app_data(Data::new(user_repository))
+            .app_data(Data::new(users_repository))
+            .app_data(Data::new(orgs_repository))
             .service(favicon)
             .service(welcome)
             .service(login_state)
             .service(auth)
             .service(logout)
             .service(icon)
+            .service(get_organizations)
             .service(
                 web::resource("/test").to(|req: HttpRequest| match *req.method() {
                     Method::GET => HttpResponse::Ok(),
