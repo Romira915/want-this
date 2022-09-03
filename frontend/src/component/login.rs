@@ -1,4 +1,4 @@
-use yew::{function_component, html, Html};
+use yew::{function_component, html};
 
 use crate::CONFIG;
 
@@ -6,6 +6,8 @@ use crate::CONFIG;
 pub fn login_button() -> Html {
     html!(
         <>
+            <script src="https://accounts.google.com/gsi/client"></script>
+
             <div id="g_id_onload"
                 data-client_id="839980808596-tq6nkmcik0nrohr079rj4vt5bdhvr15g.apps.googleusercontent.com"
                 data-context="signup"
