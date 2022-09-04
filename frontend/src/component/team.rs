@@ -54,7 +54,7 @@ pub(crate) fn team_content() -> Html {
 
 #[function_component(Team)]
 pub(crate) fn team(props: &Props) -> Html {
-    let org_id = use_state(|| props.org.organization_id);
+    let org_id = use_state(|| props.org.organization_id.clone());
     let disabled = use_state(|| false);
     let handle = use_async(async move {
         Request::build(&format!(
@@ -79,7 +79,7 @@ pub(crate) fn team(props: &Props) -> Html {
         <div class="grid grid-cols-4 justify-items-center">
             <div class="text-white text-2xl">{props.org.organization_name.as_str()}</div>
             <div>{props.org.description.clone().unwrap_or_default()}</div>
-            <div>{props.org.owner}</div>
+            <div>{&props.org.owner}</div>
             <button
              onclick={onclick}
              disabled={*disabled}
