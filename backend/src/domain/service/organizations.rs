@@ -20,7 +20,7 @@ use crate::{
 };
 
 #[get("/organizations")]
-async fn get_organizations(
+async fn get_not_joined_organizations(
     _req: HttpRequest,
     session: Session,
     orgs_repo: Data<MySqlOrganizationsRepository>,
