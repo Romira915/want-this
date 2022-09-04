@@ -6,6 +6,7 @@ use actix_web::{
     web::{self, Data},
     HttpRequest, HttpResponse, Result,
 };
+use api_format::Organization as OrganizationAPI;
 use reqwest::StatusCode;
 
 use crate::{
@@ -37,6 +38,10 @@ async fn get_organizations(
             return Ok(HttpResponse::build(StatusCode::UNAUTHORIZED).finish());
         }
     };
+    let org_list: Vec<OrganizationAPI> = org_list
+        .into_iter()
+        .map(|o| OrganizationAPI::from(o))
+        .collect();
     log::debug!("{:#?}", org_list);
 
     Ok(HttpResponse::Ok().json(&org_list))
