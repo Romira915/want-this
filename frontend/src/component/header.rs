@@ -1,7 +1,7 @@
 use yew::{function_component, html, Callback};
 use yew_hooks::use_async;
 
-use crate::{api::get, CONFIG};
+use crate::CONFIG;
 
 #[function_component(Header)]
 pub fn header() -> Html {

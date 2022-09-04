@@ -1,7 +1,7 @@
 use anyhow::Context;
+use api_format::Organization;
 use async_trait::async_trait;
 use derive_more::Constructor;
-use json_format::Organization;
 use sqlx::{MySql, Pool};
 
 use crate::{

@@ -1,5 +1,5 @@
 use anyhow::Context;
-use json_format::Organization;
+use api_format::Organization;
 use sqlx::{Connection, MySqlConnection};
 
 use crate::domain::entity::{
@@ -153,7 +153,7 @@ impl InternalOrganizationRepository {
         let org_list = sqlx::query_as!(
             Organization,
             "SELECT organization_id, organization_name, description, is_public, owner 
-        FROM organizations WHERE is_public = 1"
+        FROM organizations WHERE is_public = 1;"
         )
         .fetch_all(conn)
         .await

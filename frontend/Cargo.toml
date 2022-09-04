@@ -23,7 +23,8 @@ yew = "0.19.3"
 yew-hooks = "0.1.56"
 yew-router = "0.16"
 
-json_format = {path = "../json_format"}
+api_format = {path = "../api_format"}
+getset = "0.1.2"
 
 [dependencies.web-sys]
 features = [
