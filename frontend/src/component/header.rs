@@ -1,4 +1,7 @@
-use yew::{function_component, html};
+use yew::{function_component, html, Callback};
+use yew_hooks::use_async;
+
+use crate::{api::get, CONFIG};
 
 #[function_component(Header)]
 pub fn header() -> Html {
@@ -19,13 +22,14 @@ pub fn header() -> Html {
                     <a href="/team" class="mr-5 hover:text-white">{"Team"}</a>
                     <a href="/mypage" class="mr-5 hover:text-white">{"MyPage"}</a>
                 </nav>
-                <button
+                <a
+                    href={format!("{}/auth/logout", CONFIG.backend_origin)}
                     class="inline-flex items-center dark:bg-gray-800 border-0 py-1 px-3 focus:outline-none hover:bg-gray-700 rounded text-base mt-4 md:mt-0">{"Logout"}
                     <svg fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                         class="w-4 h-4 ml-1" viewBox="0 0 24 24">
                         <path d="M5 12h14M12 5l7 7-7 7"></path>
                     </svg>
-                </button>
+                </a>
             </div>
         </header>
     }

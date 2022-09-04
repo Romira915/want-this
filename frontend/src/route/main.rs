@@ -1,4 +1,4 @@
-use crate::component::cta::Cta;
+use crate::component::{cta::Cta, team::*};
 use yew::prelude::*;
 use yew_router::prelude::*;
 
@@ -28,16 +28,14 @@ pub(crate) enum MainRoute {
 
 pub(crate) fn switch_main(route: &MainRoute) -> Html {
     match route {
-        MainRoute::Home => {
-            html! {
-               <Cta />
-            }
-        }
+        MainRoute::Home => html! {
+           <Cta />
+        },
         MainRoute::Friend => html! {
             <h1> {"Frend"} </h1>
         },
         MainRoute::Team => html! {
-            <h1> {"Team"} </h1>
+            <TeamContent />
         },
         MainRoute::MyPage => html! {
             <h1> {"MyPage"} </h1>

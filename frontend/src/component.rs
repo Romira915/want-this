@@ -4,9 +4,10 @@ use yew_hooks::{use_async_with_options, UseAsyncOptions};
 
 use crate::{api::fetch, CONFIG};
 
-pub mod cta;
-pub mod header;
-pub mod login;
+pub(crate) mod cta;
+pub(crate) mod header;
+pub(crate) mod login;
+pub(crate) mod team;
 
 #[function_component(State)]
 pub(crate) fn state() -> Html {
