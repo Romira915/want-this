@@ -16,13 +16,17 @@ impl ToString for Error {
     }
 }
 
+pub(crate) fn get(url: &str) -> Request {
+    Request::get(url)
+        .mode(RequestMode::Cors)
+        .credentials(RequestCredentials::Include)
+}
+
 pub(crate) async fn fetch<T>(url: &str) -> Result<T, Error>
 where
     T: DeserializeOwned,
 {
-    let resp = Request::get(url)
-        .mode(RequestMode::Cors)
-        .credentials(RequestCredentials::Include)
+    let resp = get(url)
         .send()
         .await
         .map_err(|e| Error { msg: e.to_string() });
