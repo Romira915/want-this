@@ -3,17 +3,6 @@ use std::fmt::Display;
 use derive_more::Constructor;
 use serde::{Deserialize, Serialize};
 
-#[derive(Debug, Clone, Serialize, Deserialize)]
-pub struct User {
-    pub google_id: Option<String>,
-}
-
-impl User {
-    pub fn new(google_id: Option<String>) -> Self {
-        Self { google_id }
-    }
-}
-
 #[derive(Debug, Clone, PartialEq, Constructor, Serialize, Deserialize)]
 pub struct Organization {
     pub organization_id: u64,

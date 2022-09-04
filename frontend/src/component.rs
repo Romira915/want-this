@@ -1,4 +1,4 @@
-use json_format::User;
+use api_format::User;
 use yew::{function_component, html};
 use yew_hooks::{use_async_with_options, UseAsyncOptions};
 

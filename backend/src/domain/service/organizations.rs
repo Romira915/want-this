@@ -1,9 +1,18 @@
 use actix_session::Session;
-use actix_web::{get, http::header, web::Data, HttpRequest, HttpResponse, Result};
+use actix_web::{
+    get,
+    http::header,
+    post,
+    web::{self, Data},
+    HttpRequest, HttpResponse, Result,
+};
 use reqwest::StatusCode;
 
 use crate::{
-    domain::repositories::organizations::{MySqlOrganizationsRepository, OrganizationsRepository},
+    domain::{
+        entity::organizations::JoinOrganization,
+        repositories::organizations::{MySqlOrganizationsRepository, OrganizationsRepository},
+    },
     session::SessionKey,
     utility::is_login,
     CONFIG,
@@ -16,8 +25,8 @@ async fn get_organizations(
     orgs_repo: Data<MySqlOrganizationsRepository>,
 ) -> Result<HttpResponse> {
     if !is_login(&session)? {
-        return Ok(HttpResponse::SeeOther()
-            .insert_header((header::LOCATION, format!("{}/", CONFIG.frontend_origin)))
+        return Ok(HttpResponse::NotFound()
+            .insert_header(("WantThis-Location", format!("{}/", CONFIG.frontend_origin)))
             .finish());
     }
 
@@ -28,6 +37,38 @@ async fn get_organizations(
             return Ok(HttpResponse::build(StatusCode::UNAUTHORIZED).finish());
         }
     };
+    log::debug!("{:#?}", org_list);
 
     Ok(HttpResponse::Ok().json(&org_list))
+}
+
+#[post("/organizations/{organization_id}")]
+async fn join_organizations(
+    _req: HttpRequest,
+    path: web::Path<u64>,
+    session: Session,
+    orgs_repo: Data<MySqlOrganizationsRepository>,
+) -> Result<HttpResponse> {
+    if !is_login(&session)? {
+        return Ok(HttpResponse::NotFound()
+            .insert_header(("WantThis-Location", format!("{}/", CONFIG.frontend_origin)))
+            .finish());
+    }
+
+    let org_id = path.into_inner();
+    let join_org = JoinOrganization::new(
+        session.get(SessionKey::UserId.as_ref()).unwrap().unwrap(),
+        org_id,
+        false,
+    );
+
+    let id = match orgs_repo.join_organization(&join_org).await {
+        Ok(id) => id,
+        Err(e) => {
+            log::error!("{}", &e);
+            return Ok(HttpResponse::build(StatusCode::UNAUTHORIZED).finish());
+        }
+    };
+
+    Ok(HttpResponse::Ok().finish())
 }
