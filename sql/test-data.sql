@@ -275,6 +275,86 @@ VALUES (
             WHERE google_id = '1'
         )
     );
+INSERT IGNORE INTO organizations (
+        organization_name,
+        description,
+        is_public,
+        owner
+    )
+VALUES (
+        'org_5',
+        'debug data',
+        1,
+        (
+            SELECT user_id
+            FROM users
+            WHERE google_id = '1'
+        )
+    );
+INSERT IGNORE INTO organizations (
+        organization_name,
+        description,
+        is_public,
+        owner
+    )
+VALUES (
+        'org_6',
+        'debug data',
+        1,
+        (
+            SELECT user_id
+            FROM users
+            WHERE google_id = '1'
+        )
+    );
+INSERT IGNORE INTO organizations (
+        organization_name,
+        description,
+        is_public,
+        owner
+    )
+VALUES (
+        'org_7',
+        'debug data',
+        1,
+        (
+            SELECT user_id
+            FROM users
+            WHERE google_id = '1'
+        )
+    );
+INSERT IGNORE INTO organizations (
+        organization_name,
+        description,
+        is_public,
+        owner
+    )
+VALUES (
+        'org_8',
+        'debug data',
+        1,
+        (
+            SELECT user_id
+            FROM users
+            WHERE google_id = '1'
+        )
+    );
+INSERT IGNORE INTO organizations (
+        organization_name,
+        description,
+        is_public,
+        owner
+    )
+VALUES (
+        'org_9',
+        'debug data',
+        1,
+        (
+            SELECT user_id
+            FROM users
+            WHERE google_id = '1'
+        )
+    );
 -- org
 INSERT IGNORE INTO users_organizations (
         user_id,

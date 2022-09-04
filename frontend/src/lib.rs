@@ -7,16 +7,16 @@ use yew::{function_component, html};
 use yew_router::prelude::*;
 
 pub(crate) mod api;
-pub mod bindings;
-pub mod component;
-pub mod route;
+pub(crate) mod bindings;
+pub(crate) mod component;
+pub(crate) mod route;
 
 #[derive(Debug, Deserialize, Constructor)]
-pub struct Config {
+pub(crate) struct Config {
     pub backend_origin: &'static str,
 }
 
-pub static CONFIG: Lazy<Config> = Lazy::new(|| {
+pub(crate) static CONFIG: Lazy<Config> = Lazy::new(|| {
     Config::new(if cfg!(debug_assertions) {
         "http://localhost:4080"
     } else {
