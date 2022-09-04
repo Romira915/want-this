@@ -1,9 +1,8 @@
 use anyhow::Context;
-use api_format::Organization;
 use sqlx::{Connection, MySqlConnection};
 
 use crate::domain::entity::{
-    organizations::{JoinOrganization, NewOrganization},
+    organizations::{JoinOrganization, NewOrganization, Organization},
     users::User,
 };
 

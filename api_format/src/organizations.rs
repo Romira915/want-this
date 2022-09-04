@@ -5,11 +5,11 @@ use serde::{Deserialize, Serialize};
 
 #[derive(Debug, Clone, PartialEq, Constructor, Serialize, Deserialize)]
 pub struct Organization {
-    pub organization_id: u64,
+    pub organization_id: String,
     pub organization_name: String,
     pub description: Option<String>,
     pub is_public: i8,
-    pub owner: u64,
+    pub owner: String,
 }
 
 impl Display for Organization {

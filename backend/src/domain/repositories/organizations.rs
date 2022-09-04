@@ -1,12 +1,11 @@
 use anyhow::Context;
-use api_format::Organization;
 use async_trait::async_trait;
 use derive_more::Constructor;
 use sqlx::{MySql, Pool};
 
 use crate::{
     domain::entity::{
-        organizations::{JoinOrganization, NewOrganization},
+        organizations::{JoinOrganization, NewOrganization, Organization},
         users::User,
     },
     infrastructure::{create_uuid_short, organizations::InternalOrganizationRepository},
