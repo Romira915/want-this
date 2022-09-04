@@ -53,7 +53,7 @@ pub(crate) fn team_content() -> Html {
                 {for orgs.iter().map(|o| html!{<Team org={o.clone()} toggle_ref={toggle_ref.clone()} />})}
             </div>
             <button ref={toggle_ref} id={"org-create-modal-toggle"} hidden={true} data-modal-toggle="notice-modal">{"toggle"}</button>
-            <Modal message={"OK!".to_string()} modal_id={"notice-modal"} />
+            <Modal message={"Join!".to_string()} modal_id={"notice-modal"} />
         </div>
     )
 }
