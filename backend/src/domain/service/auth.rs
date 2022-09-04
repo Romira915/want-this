@@ -116,10 +116,8 @@ async fn auth(
 #[get("/auth/logout")]
 async fn logout(_req: HttpRequest, session: Session) -> Result<HttpResponse> {
     log::info!(
-        "[logout] {}",
-        session
-            .get::<u64>(SessionKey::UserId.as_ref())?
-            .unwrap_or_default()
+        "[logout] {:?}",
+        session.get::<u64>(SessionKey::UserId.as_ref())?
     );
     session.clear();
 

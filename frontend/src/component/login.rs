@@ -3,7 +3,7 @@ use yew::{function_component, html};
 use crate::CONFIG;
 
 #[function_component(LoginButton)]
-pub fn login_button() -> Html {
+pub(crate) fn login_button() -> Html {
     html!(
         <>
             <script src="https://accounts.google.com/gsi/client"></script>
