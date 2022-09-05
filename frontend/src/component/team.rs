@@ -90,7 +90,7 @@ pub(crate) fn team(props: &Props) -> Html {
     }
 
     html!(
-        <div class="grid grid-cols-4 justify-items-center">
+        <div class="grid grid-cols-4 justify-items-center my-1">
             <div class="text-white text-2xl">{props.org.organization_name.as_str()}</div>
             <div>{props.org.description.clone().unwrap_or_default()}</div>
             <div>{&props.org.owner}</div>
