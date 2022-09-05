@@ -79,6 +79,26 @@ impl InternalOrganizationRepository {
         Ok(id)
     }
 
+    pub(crate) async fn update_join_status(
+        conn: &mut MySqlConnection,
+        user_id: u64,
+        org_id: u64,
+        join_status: &JoinStatus,
+    ) -> anyhow::Result<u64> {
+        let id = sqlx::query!(
+            "UPDATE users_organizations SET join_status = ? WHERE user_id = ? AND organization_id = ?;",
+            join_status.as_ref(),
+            user_id,
+            org_id
+        )
+        .execute(conn)
+        .await
+        .context("Failed to update_join_status")?
+        .last_insert_id();
+
+        Ok(id)
+    }
+
     pub(crate) async fn find_org_by_org_id(
         conn: &mut MySqlConnection,
         org_id: u64,
