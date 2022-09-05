@@ -2,7 +2,9 @@ use anyhow::Context;
 use sqlx::{Connection, MySqlConnection};
 
 use crate::domain::entity::{
-    organizations::{JoinOrganization, NewOrganization, Organization},
+    organizations::{
+        JoinOrganization, JoinRequestOrganization, JoinStatus, NewOrganization, Organization,
+    },
     users::User,
 };
 
@@ -36,20 +38,42 @@ impl InternalOrganizationRepository {
         Ok(id)
     }
 
+    // doneTODO: join_status変更分を修正する
     pub(crate) async fn join_organization(
         conn: &mut MySqlConnection,
         join_org: &JoinOrganization,
     ) -> anyhow::Result<u64> {
         let id = sqlx::query!(
-            "INSERT INTO users_organizations (user_id, organization_id, edit_permission) 
-            VALUES (?, ?, ?);",
+            "INSERT INTO users_organizations (user_id, organization_id, edit_permission, join_status) 
+            VALUES (?, ?, ?, ?);",
             join_org.user_id,
             join_org.org_id,
-            join_org.edit_permission
+            join_org.edit_permission,
+            JoinStatus::Joined.as_ref()
         )
         .execute(conn)
         .await
         .context("Failed to join_organization")?
+        .last_insert_id();
+
+        Ok(id)
+    }
+
+    pub(crate) async fn join_request_organization(
+        conn: &mut MySqlConnection,
+        join_req_org: &JoinRequestOrganization,
+    ) -> anyhow::Result<u64> {
+        let id = sqlx::query!(
+            "INSERT INTO users_organizations (user_id, organization_id, edit_permission, join_status) 
+            VALUES (?, ?, ?, ?);",
+            join_req_org.user_id,
+            join_req_org.org_id,
+            join_req_org.edit_permission,
+            JoinStatus::Pending.as_ref()
+        )
+        .execute(conn)
+        .await
+        .context("Failed to join_request_organization")?
         .last_insert_id();
 
         Ok(id)

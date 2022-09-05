@@ -359,7 +359,8 @@ VALUES (
 INSERT IGNORE INTO users_organizations (
         user_id,
         organization_id,
-        edit_permission
+        edit_permission,
+        join_status
     )
 VALUES (
         (
@@ -372,12 +373,14 @@ VALUES (
             FROM organizations
             WHERE organization_name = 'Aqours'
         ),
-        1
+        1,
+        'Joined'
     );
 INSERT IGNORE INTO users_organizations (
         user_id,
         organization_id,
-        edit_permission
+        edit_permission,
+        join_status
     )
 VALUES (
         (
@@ -390,12 +393,14 @@ VALUES (
             FROM organizations
             WHERE organization_name = 'Aqours'
         ),
-        0
+        0,
+        'Joined'
     );
 INSERT IGNORE INTO users_organizations (
         user_id,
         organization_id,
-        edit_permission
+        edit_permission,
+        join_status
     )
 VALUES (
         (
@@ -408,12 +413,14 @@ VALUES (
             FROM organizations
             WHERE organization_name = 'Aqours'
         ),
-        0
+        0,
+        'Joined'
     );
 INSERT IGNORE INTO users_organizations (
         user_id,
         organization_id,
-        edit_permission
+        edit_permission,
+        join_status
     )
 VALUES (
         (
@@ -426,12 +433,14 @@ VALUES (
             FROM organizations
             WHERE organization_name = 'Aqours'
         ),
-        0
+        0,
+        'Joined'
     );
 INSERT IGNORE INTO users_organizations (
         user_id,
         organization_id,
-        edit_permission
+        edit_permission,
+        join_status
     )
 VALUES (
         (
@@ -444,12 +453,14 @@ VALUES (
             FROM organizations
             WHERE organization_name = 'Aqours'
         ),
-        1
+        1,
+        'Joined'
     );
 INSERT IGNORE INTO users_organizations (
         user_id,
         organization_id,
-        edit_permission
+        edit_permission,
+        join_status
     )
 VALUES (
         (
@@ -462,12 +473,14 @@ VALUES (
             FROM organizations
             WHERE organization_name = 'Aqours'
         ),
-        0
+        0,
+        'Joined'
     );
 INSERT IGNORE INTO users_organizations (
         user_id,
         organization_id,
-        edit_permission
+        edit_permission,
+        join_status
     )
 VALUES (
         (
@@ -480,12 +493,14 @@ VALUES (
             FROM organizations
             WHERE organization_name = 'Aqours'
         ),
-        0
+        0,
+        'Joined'
     );
 INSERT IGNORE INTO users_organizations (
         user_id,
         organization_id,
-        edit_permission
+        edit_permission,
+        join_status
     )
 VALUES (
         (
@@ -498,12 +513,14 @@ VALUES (
             FROM organizations
             WHERE organization_name = 'Aqours'
         ),
-        0
+        0,
+        'Joined'
     );
 INSERT IGNORE INTO users_organizations (
         user_id,
         organization_id,
-        edit_permission
+        edit_permission,
+        join_status
     )
 VALUES (
         (
@@ -516,7 +533,8 @@ VALUES (
             FROM organizations
             WHERE organization_name = 'Aqours'
         ),
-        0
+        0,
+        'Joined'
     );
 INSERT IGNORE INTO want_items (
         having_organization_id,
