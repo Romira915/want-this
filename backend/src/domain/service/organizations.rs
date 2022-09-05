@@ -11,7 +11,7 @@ use reqwest::StatusCode;
 
 use crate::{
     domain::{
-        entity::organizations::JoinOrganization,
+        entity::organizations::{JoinOrganization, JoinRequestOrganization},
         repositories::organizations::{MySqlOrganizationsRepository, OrganizationsRepository},
     },
     session::SessionKey,
@@ -67,7 +67,7 @@ async fn get_not_joined_organizations(
 }
 
 #[post("/organizations/{organization_id}")]
-async fn join_organizations(
+async fn join_request_organizations(
     _req: HttpRequest,
     path: web::Path<u64>,
     session: Session,
@@ -82,13 +82,9 @@ async fn join_organizations(
     };
 
     let org_id = path.into_inner();
-    let join_org = JoinOrganization::new(
-        session.get(SessionKey::UserId.as_ref()).unwrap().unwrap(),
-        org_id,
-        false,
-    );
+    let join_req_org = JoinRequestOrganization::new(user_id, org_id, false);
 
-    let id = match orgs_repo.join_organization(&join_org).await {
+    let id = match orgs_repo.join_request_organization(&join_req_org).await {
         Ok(id) => id,
         Err(e) => {
             log::error!("{}", &e);
