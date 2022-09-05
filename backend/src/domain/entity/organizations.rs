@@ -1,7 +1,17 @@
 use api_format::Organization as OrganizationAPI;
-use std::fmt::Display;
-
 use derive_more::Constructor;
+use std::fmt::Display;
+use strum::{AsRefStr, EnumString};
+
+#[derive(Debug, EnumString, AsRefStr)]
+pub enum JoinStatus {
+    #[strum(ascii_case_insensitive)]
+    Joined,
+    #[strum(ascii_case_insensitive)]
+    Pending,
+    #[strum(ascii_case_insensitive)]
+    Rejected,
+}
 
 #[derive(Debug, Clone, PartialEq, Constructor)]
 pub struct Organization {
@@ -50,4 +60,12 @@ pub(crate) struct JoinOrganization {
     pub user_id: u64,
     pub org_id: u64,
     pub edit_permission: bool,
+}
+
+#[derive(Debug, Constructor)]
+pub(crate) struct JoinRequestOrganization {
+    pub user_id: u64,
+    pub org_id: u64,
+    pub edit_permission: bool,
+    pub join_status: JoinStatus,
 }
