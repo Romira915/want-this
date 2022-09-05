@@ -62,10 +62,11 @@ pub(crate) struct JoinOrganization {
     pub edit_permission: bool,
 }
 
-#[derive(Debug, Constructor)]
-pub(crate) struct JoinRequestOrganization {
-    pub user_id: u64,
-    pub org_id: u64,
-    pub edit_permission: bool,
-    pub join_status: JoinStatus,
-}
+// NOTE: Alias
+// #[derive(Debug, Constructor)]
+// pub(crate) struct JoinRequestOrganization {
+//     pub user_id: u64,
+//     pub org_id: u64,
+//     pub edit_permission: bool,
+// }
+pub(crate) use self::JoinOrganization as JoinRequestOrganization;

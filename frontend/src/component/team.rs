@@ -53,7 +53,7 @@ pub(crate) fn team_content() -> Html {
                 {for orgs.iter().map(|o| html!{<Team org={o.clone()} toggle_ref={toggle_ref.clone()} />})}
             </div>
             <button ref={toggle_ref} id={"org-create-modal-toggle"} hidden={true} data-modal-toggle="notice-modal">{"toggle"}</button>
-            <Modal message={"Join!".to_string()} modal_id={"notice-modal"} />
+            <Modal message={"参加申請しました!".to_string()} modal_id={"notice-modal"} />
         </div>
     )
 }
@@ -97,7 +97,9 @@ pub(crate) fn team(props: &Props) -> Html {
             <button
              onclick={onclick}
              disabled={*disabled}
-             class="flex-shrink-0 text-white dark:bg-indigo-700 disabled:bg-gray-500 border-0 py-2 px-8 focus:outline-none hover:bg-indigo-600 rounded text-lg mt-10 sm:mt-0">{"Join"}</button>
+             class="flex-shrink-0 text-white dark:bg-indigo-700 disabled:bg-gray-500 border-0 py-2 px-8 focus:outline-none hover:bg-indigo-600 rounded text-lg mt-10 sm:mt-0">
+             {"Join request"}
+             </button>
         </div>
     )
 }
