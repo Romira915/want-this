@@ -48,7 +48,7 @@ services:
   #   tty: true
 
   db:
-    image: mariadb:10.3.34
+    image: mariadb:10.6.9
     restart: always
     environment:
       MARIADB_ROOT_PASSWORD: ${MARIADB_ROOT_PASSWORD}
