@@ -1,26 +1,37 @@
 use yew::{function_component, html, Callback};
 use yew_hooks::use_async;
+use yew_router::prelude::*;
 
-use crate::CONFIG;
+use crate::{route::main::MainRoute, CONFIG};
 
 #[function_component(Header)]
 pub fn header() -> Html {
     html! {
         <header class="text-gray-400 dark:bg-gray-900 body-font">
             <div class="container mx-auto flex flex-wrap p-5 flex-col md:flex-row items-center">
-                <a href="/" class="flex title-font font-medium items-center text-white mb-4 md:mb-0">
+                <Link<MainRoute> to={MainRoute::Home}>
+                <span class="flex title-font font-medium items-center text-white mb-4 md:mb-0">
                     <svg xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor" stroke-linecap="round"
-                        stroke-linejoin="round" stroke-width="2" class="w-10 h-10 text-white p-2 bg-indigo-500 rounded-full"
-                        viewBox="0 0 24 24">
-                        <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"></path>
-                    </svg>
+                    stroke-linejoin="round" stroke-width="2" class="w-10 h-10 text-white p-2 bg-indigo-500 rounded-full"
+                    viewBox="0 0 24 24">
+                            <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"></path>
+                            </svg>
                     <span class="ml-3 text-xl" href="/">{"Want This"}</span>
-                </a>
+                </span>
+                </Link<MainRoute>>
                 <nav class="md:ml-auto flex flex-wrap items-center text-base justify-center">
-                    <a href="/" class="mr-5 hover:text-white" >{"Home"}</a>
-                    <a href="/friend" class="mr-5 hover:text-white">{"Friend"}</a>
-                    <a href="/team" class="mr-5 hover:text-white">{"Team"}</a>
-                    <a href="/mypage" class="mr-5 hover:text-white">{"MyPage"}</a>
+                    <Link<MainRoute> to={MainRoute::Home}>
+                        <span class="mr-5 hover:text-white">{"Home"}</span>
+                    </Link<MainRoute>>
+                    <Link<MainRoute> to={MainRoute::Friend}>
+                        <span class="mr-5 hover:text-white">{"Friend"}</span>
+                    </Link<MainRoute>>
+                    <Link<MainRoute> to={MainRoute::Team}>
+                        <span class="mr-5 hover:text-white">{"Team"}</span>
+                    </Link<MainRoute>>
+                    <Link<MainRoute> to={MainRoute::MyPage}>
+                        <span class="mr-5 hover:text-white">{"MyPage"}</span>
+                    </Link<MainRoute>>
                 </nav>
                 <a
                     href={format!("{}/auth/logout", CONFIG.backend_origin)}
