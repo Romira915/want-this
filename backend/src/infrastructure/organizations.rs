@@ -1,4 +1,5 @@
 use anyhow::Context;
+use api_format::Organization as OrganizationAPI;
 use sqlx::{Connection, MySqlConnection};
 
 use crate::domain::entity::{
@@ -70,6 +71,28 @@ impl InternalOrganizationRepository {
         .context("Failed to find_org_by_org_id")?;
 
         Ok(org)
+    }
+
+    pub(crate) async fn update_org(
+        conn: &mut MySqlConnection,
+        update_org: &OrganizationAPI,
+    ) -> anyhow::Result<u64> {
+        let id = sqlx::query!(
+            "UPDATE organizations SET organization_name = ?, description = ?,
+            is_public = ?, owner = ? 
+            WHERE organization_id = ?;",
+            update_org.organization_name,
+            update_org.description,
+            update_org.is_public,
+            update_org.owner,
+            update_org.organization_id
+        )
+        .execute(conn)
+        .await
+        .context("Failed to update_org")?
+        .last_insert_id();
+
+        Ok(id)
     }
 
     pub(crate) async fn update_org_name(

@@ -1,4 +1,5 @@
 use anyhow::Context;
+use api_format::Organization as OrganizationAPI;
 use async_trait::async_trait;
 use derive_more::Constructor;
 use sqlx::{MySql, Pool};
@@ -16,6 +17,7 @@ pub(crate) trait OrganizationsRepository {
     async fn create_organization_and_join(&self, new_org: &NewOrganization) -> anyhow::Result<u64>;
     async fn join_organization(&self, join_org: &JoinOrganization) -> anyhow::Result<u64>;
     async fn find_org_by_org_id(&self, org_id: u64) -> anyhow::Result<Vec<Organization>>;
+    async fn update_org(&self, update_org: &OrganizationAPI) -> anyhow::Result<u64>;
     async fn update_org_name(&self, org_id: u64, org_name: &str) -> anyhow::Result<u64>;
     async fn update_org_description(
         &self,
@@ -55,6 +57,12 @@ impl OrganizationsRepository for MySqlOrganizationsRepository {
         let mut conn = self.pool.acquire().await.context("Failed to acquire")?;
 
         InternalOrganizationRepository::find_org_by_org_id(&mut conn, org_id).await
+    }
+
+    async fn update_org(&self, update_org: &OrganizationAPI) -> anyhow::Result<u64> {
+        let mut conn = self.pool.acquire().await.context("Failed to acquire")?;
+
+        InternalOrganizationRepository::update_org(&mut conn, update_org).await
     }
 
     async fn update_org_name(&self, org_id: u64, org_name: &str) -> anyhow::Result<u64> {

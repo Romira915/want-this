@@ -85,5 +85,13 @@ async fn update_organizations(
     session: Session,
     orgs_repo: Data<MySqlOrganizationsRepository>,
 ) -> Result<HttpResponse> {
+    if !is_login(&session)? {
+        return Ok(HttpResponse::NotFound()
+            .insert_header(("WantThis-Location", format!("{}/", CONFIG.frontend_origin)))
+            .finish());
+    }
+
+    todo!();
+
     Ok(HttpResponse::Ok().finish())
 }
