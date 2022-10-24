@@ -2,7 +2,7 @@ use actix_session::Session;
 use actix_web::{
     get,
     http::header,
-    post,
+    post, put,
     web::{self, Data},
     HttpRequest, HttpResponse, Result,
 };
@@ -75,5 +75,15 @@ async fn join_organizations(
         }
     };
 
+    Ok(HttpResponse::Ok().finish())
+}
+
+#[put("/organizations/{organization_id}")]
+async fn update_organizations(
+    _req: HttpRequest,
+    path: web::Path<u64>,
+    session: Session,
+    orgs_repo: Data<MySqlOrganizationsRepository>,
+) -> Result<HttpResponse> {
     Ok(HttpResponse::Ok().finish())
 }
