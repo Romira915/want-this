@@ -5,7 +5,9 @@ use sqlx::{MySql, Pool};
 
 use crate::{
     domain::entity::{
-        organizations::{JoinOrganization, NewOrganization, Organization},
+        organizations::{
+            JoinOrganization, JoinRequestOrganization, JoinStatus, NewOrganization, Organization,
+        },
         users::User,
     },
     infrastructure::{create_uuid_short, organizations::InternalOrganizationRepository},
@@ -15,6 +17,16 @@ use crate::{
 pub(crate) trait OrganizationsRepository {
     async fn create_organization_and_join(&self, new_org: &NewOrganization) -> anyhow::Result<u64>;
     async fn join_organization(&self, join_org: &JoinOrganization) -> anyhow::Result<u64>;
+    async fn join_request_organization(
+        &self,
+        join_req_org: &JoinRequestOrganization,
+    ) -> anyhow::Result<u64>;
+    async fn update_join_status(
+        &self,
+        user_id: u64,
+        org_id: u64,
+        join_status: &JoinStatus,
+    ) -> anyhow::Result<u64>;
     async fn find_org_by_org_id(&self, org_id: u64) -> anyhow::Result<Vec<Organization>>;
     async fn update_org_name(&self, org_id: u64, org_name: &str) -> anyhow::Result<u64>;
     async fn update_org_description(
@@ -49,6 +61,27 @@ impl OrganizationsRepository for MySqlOrganizationsRepository {
         let mut conn = self.pool.acquire().await.context("Failed to acquire")?;
 
         InternalOrganizationRepository::join_organization(&mut conn, &join_org).await
+    }
+
+    async fn join_request_organization(
+        &self,
+        join_req_org: &JoinRequestOrganization,
+    ) -> anyhow::Result<u64> {
+        let mut conn = self.pool.acquire().await.context("Failed to acquire")?;
+
+        InternalOrganizationRepository::join_request_organization(&mut conn, &join_req_org).await
+    }
+
+    async fn update_join_status(
+        &self,
+        user_id: u64,
+        org_id: u64,
+        join_status: &JoinStatus,
+    ) -> anyhow::Result<u64> {
+        let mut conn = self.pool.acquire().await.context("Failed to acquire")?;
+
+        InternalOrganizationRepository::update_join_status(&mut conn, user_id, org_id, join_status)
+            .await
     }
 
     async fn find_org_by_org_id(&self, org_id: u64) -> anyhow::Result<Vec<Organization>> {
