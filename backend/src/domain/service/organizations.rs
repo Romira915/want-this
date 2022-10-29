@@ -1,6 +1,6 @@
 use actix_session::Session;
 use actix_web::{
-    get,
+    delete, get,
     http::header,
     post, put,
     web::{self, Data},
@@ -103,4 +103,14 @@ async fn update_organizations(
     }
 
     Ok(HttpResponse::Ok().finish())
+}
+
+#[delete("/organizations/{organization_id}")]
+async fn delete_organizations(
+    _req: HttpRequest,
+    _path: web::Path<u64>,
+    session: Session,
+    orgs_repo: Data<MySqlOrganizationsRepository>,
+) -> Result<HttpResponse> {
+    todo!()
 }
