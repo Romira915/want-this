@@ -108,9 +108,28 @@ async fn update_organizations(
 #[delete("/organizations/{organization_id}")]
 async fn delete_organizations(
     _req: HttpRequest,
-    _path: web::Path<u64>,
+    path: web::Path<u64>,
     session: Session,
     orgs_repo: Data<MySqlOrganizationsRepository>,
 ) -> Result<HttpResponse> {
+    if !is_login(&session)? {
+        return Ok(HttpResponse::NotFound()
+            .insert_header(("WantThis-Location", format!("{}/", CONFIG.frontend_origin)))
+            .finish());
+    }
+
+    let org_id = path.into_inner();
+
+    // 組織が存在するか
+    match orgs_repo.find_org_by_org_id(org_id).await {
+        Ok(_) => {
+            // TODO: 組織を削除
+        }
+        Err(e) => {
+            log::error!("{}", &e);
+            return Ok(HttpResponse::build(StatusCode::NOT_FOUND).finish());
+        }
+    };
+
     todo!()
 }

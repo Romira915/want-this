@@ -59,14 +59,14 @@ impl InternalOrganizationRepository {
     pub(crate) async fn find_org_by_org_id(
         conn: &mut MySqlConnection,
         org_id: u64,
-    ) -> anyhow::Result<Vec<Organization>> {
+    ) -> anyhow::Result<Organization> {
         let org = sqlx::query_as!(
             Organization,
             "SELECT organization_id, organization_name, description, is_public, owner 
              FROM organizations WHERE organization_id = ?;",
             org_id
         )
-        .fetch_all(conn)
+        .fetch_one(conn)
         .await
         .context("Failed to find_org_by_org_id")?;
 
