@@ -1,0 +1,19 @@
+{
+    "codic.case": "snake_case",
+    "sqltools.connections": [
+        {
+            "mysqlOptions": {
+                "authProtocol": "default"
+            },
+            "previewLimit": 50,
+            "server": "127.0.0.1",
+            "port": 3306,
+            "driver": "MariaDB",
+            "name": "want-this",
+            "group": "want-this",
+            "database": "wantthis",
+            "username": "wantthis",
+            "password": "want_pass"
+        }
+    ]
+}
