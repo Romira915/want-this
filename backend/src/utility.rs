@@ -3,6 +3,6 @@ use actix_web::Error;
 
 use crate::session::SessionKey;
 
-pub(crate) fn get_user_id(session: &Session) -> Result<Option<u64>, Error> {
-    session.get::<u64>(SessionKey::UserId.as_ref())
+pub(crate) fn is_login(session: &Session) -> Result<bool, Error> {
+    Ok(session.get::<u64>(SessionKey::UserId.as_ref())?.is_some())
 }

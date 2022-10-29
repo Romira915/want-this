@@ -40,9 +40,7 @@ use want_this_backend::auth::{decode_google_jwt_with_jwturl, GooglePayload};
 use want_this_backend::domain::repositories::organizations::MySqlOrganizationsRepository;
 use want_this_backend::domain::repositories::users::MySqlUsersRepository;
 use want_this_backend::domain::service::auth::{auth, logout};
-use want_this_backend::domain::service::organizations::{
-    get_not_joined_organizations, join_request_organizations,
-};
+use want_this_backend::domain::service::organizations::{get_organizations, join_organizations};
 use want_this_backend::domain::service::users::icon;
 use want_this_backend::session::SessionKey;
 use want_this_backend::CONFIG;
@@ -204,8 +202,8 @@ async fn main() -> io::Result<()> {
             .service(auth)
             .service(logout)
             .service(icon)
-            .service(get_not_joined_organizations)
-            .service(join_request_organizations)
+            .service(get_organizations)
+            .service(join_organizations)
             .service(
                 web::resource("/test").to(|req: HttpRequest| match *req.method() {
                     Method::GET => HttpResponse::Ok(),

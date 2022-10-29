@@ -7,7 +7,6 @@ use crate::{api::fetch, CONFIG};
 pub(crate) mod cta;
 pub(crate) mod header;
 pub(crate) mod login;
-pub(crate) mod modal;
 pub(crate) mod team;
 
 #[function_component(State)]
