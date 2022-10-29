@@ -1,10 +1,9 @@
 use anyhow::Context;
+use api_format::Organization as OrganizationAPI;
 use sqlx::{Connection, MySqlConnection};
 
 use crate::domain::entity::{
-    organizations::{
-        JoinOrganization, JoinRequestOrganization, JoinStatus, NewOrganization, Organization,
-    },
+    organizations::{JoinOrganization, NewOrganization, Organization},
     users::User,
 };
 
@@ -38,62 +37,20 @@ impl InternalOrganizationRepository {
         Ok(id)
     }
 
-    // doneTODO: join_status変更分を修正する
     pub(crate) async fn join_organization(
         conn: &mut MySqlConnection,
         join_org: &JoinOrganization,
     ) -> anyhow::Result<u64> {
         let id = sqlx::query!(
-            "INSERT INTO users_organizations (user_id, organization_id, edit_permission, join_status) 
-            VALUES (?, ?, ?, ?);",
+            "INSERT INTO users_organizations (user_id, organization_id, edit_permission) 
+            VALUES (?, ?, ?);",
             join_org.user_id,
             join_org.org_id,
-            join_org.edit_permission,
-            JoinStatus::Joined.as_ref()
+            join_org.edit_permission
         )
         .execute(conn)
         .await
         .context("Failed to join_organization")?
-        .last_insert_id();
-
-        Ok(id)
-    }
-
-    pub(crate) async fn join_request_organization(
-        conn: &mut MySqlConnection,
-        join_req_org: &JoinRequestOrganization,
-    ) -> anyhow::Result<u64> {
-        let id = sqlx::query!(
-            "INSERT INTO users_organizations (user_id, organization_id, edit_permission, join_status) 
-            VALUES (?, ?, ?, ?);",
-            join_req_org.user_id,
-            join_req_org.org_id,
-            join_req_org.edit_permission,
-            JoinStatus::Pending.as_ref()
-        )
-        .execute(conn)
-        .await
-        .context("Failed to join_request_organization")?
-        .last_insert_id();
-
-        Ok(id)
-    }
-
-    pub(crate) async fn update_join_status(
-        conn: &mut MySqlConnection,
-        user_id: u64,
-        org_id: u64,
-        join_status: &JoinStatus,
-    ) -> anyhow::Result<u64> {
-        let id = sqlx::query!(
-            "UPDATE users_organizations SET join_status = ? WHERE user_id = ? AND organization_id = ?;",
-            join_status.as_ref(),
-            user_id,
-            org_id
-        )
-        .execute(conn)
-        .await
-        .context("Failed to update_join_status")?
         .last_insert_id();
 
         Ok(id)
@@ -114,6 +71,28 @@ impl InternalOrganizationRepository {
         .context("Failed to find_org_by_org_id")?;
 
         Ok(org)
+    }
+
+    pub(crate) async fn update_org(
+        conn: &mut MySqlConnection,
+        update_org: &OrganizationAPI,
+    ) -> anyhow::Result<u64> {
+        let id = sqlx::query!(
+            "UPDATE organizations SET organization_name = ?, description = ?,
+            is_public = ?, owner = ? 
+            WHERE organization_id = ?;",
+            update_org.organization_name,
+            update_org.description,
+            update_org.is_public,
+            update_org.owner,
+            update_org.organization_id
+        )
+        .execute(conn)
+        .await
+        .context("Failed to update_org")?
+        .last_insert_id();
+
+        Ok(id)
     }
 
     pub(crate) async fn update_org_name(

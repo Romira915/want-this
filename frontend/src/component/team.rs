@@ -1,12 +1,7 @@
-use crate::component::modal::*;
 use api_format::Organization;
 use reqwasm::http::{Method, Request};
-use wasm_bindgen::JsCast;
-use web_sys::{window, HtmlButtonElement, Window};
-use yew::{
-    function_component, html, use_node_ref, use_state, Callback, Html, NodeRef, Properties,
-    UseStateHandle,
-};
+use web_sys::{window, Window};
+use yew::{function_component, html, use_state, Callback, Html, Properties};
 use yew_hooks::{use_async, use_async_with_options, UseAsyncOptions};
 
 use crate::{
@@ -16,8 +11,7 @@ use crate::{
 
 #[derive(Properties, PartialEq)]
 pub(crate) struct Props {
-    pub(crate) org: Organization,
-    pub(crate) toggle_ref: NodeRef,
+    org: Organization,
 }
 
 #[function_component(TeamContent)]
@@ -28,7 +22,6 @@ pub(crate) fn team_content() -> Html {
         },
         UseAsyncOptions::enable_auto(),
     );
-    let toggle_ref = use_node_ref();
 
     let orgs = if let Some(orgs) = handle.data.clone() {
         orgs
@@ -46,14 +39,15 @@ pub(crate) fn team_content() -> Html {
         Vec::new()
     };
     log::debug!("orgs {:?}", orgs);
+    for o in &orgs {
+        log::debug!("id {}", o.organization_id);
+    }
 
     html!(
         <div class="dark:bg-gray-700 dark:text-gray-300">
             <div class="flex flex-col">
-                {for orgs.iter().map(|o| html!{<Team org={o.clone()} toggle_ref={toggle_ref.clone()} />})}
+                {for orgs.iter().map(|o| html!{<Team org={o.clone()} />})}
             </div>
-            <button ref={toggle_ref} id={"org-create-modal-toggle"} hidden={true} data-modal-toggle="notice-modal">{"toggle"}</button>
-            <Modal message={"参加申請しました!".to_string()} modal_id={"notice-modal"} />
         </div>
     )
 }
@@ -75,31 +69,21 @@ pub(crate) fn team(props: &Props) -> Html {
     });
     let onclick = {
         let disabled = disabled.clone();
-        let handle = handle.clone();
         Callback::from(move |_| {
             disabled.set(true);
             handle.run();
         })
     };
 
-    if let Some(true) = handle.data {
-        let toggle_ref = props.toggle_ref.clone();
-        if let Some(toggle) = toggle_ref.cast::<HtmlButtonElement>() {
-            toggle.click();
-        }
-    }
-
     html!(
-        <div class="grid grid-cols-4 justify-items-center my-1">
+        <div class="grid grid-cols-4 justify-items-center">
             <div class="text-white text-2xl">{props.org.organization_name.as_str()}</div>
             <div>{props.org.description.clone().unwrap_or_default()}</div>
             <div>{&props.org.owner}</div>
             <button
              onclick={onclick}
              disabled={*disabled}
-             class="flex-shrink-0 text-white dark:bg-indigo-700 disabled:bg-gray-500 border-0 py-2 px-8 focus:outline-none hover:bg-indigo-600 rounded text-lg mt-10 sm:mt-0">
-             {"Join request"}
-             </button>
+             class="flex-shrink-0 text-white dark:bg-indigo-700 disabled:bg-gray-500 border-0 py-2 px-8 focus:outline-none hover:bg-indigo-600 rounded text-lg mt-10 sm:mt-0">{"Join"}</button>
         </div>
     )
 }
