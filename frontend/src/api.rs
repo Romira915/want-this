@@ -69,3 +69,22 @@ where
 
     Ok(json)
 }
+
+pub(crate) async fn put_json<T>(url: &str, json: T) -> Result<(), Error>
+where
+    T: Serialize,
+{
+    log::debug!("post {}", url);
+    let _resp = Request::build(url)
+        .method(Method::PUT)
+        .header("Content-type", "application/json")
+        .body(serde_json::to_string(&json).unwrap())
+        .send()
+        .await
+        .map_err(|e| Error {
+            msg: e.to_string(),
+            location: None,
+        })?;
+
+    Ok(())
+}

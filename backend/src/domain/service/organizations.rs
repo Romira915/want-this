@@ -67,7 +67,7 @@ async fn join_organizations(
         false,
     );
 
-    let id = match orgs_repo.join_organization(&join_org).await {
+    let _id = match orgs_repo.join_organization(&join_org).await {
         Ok(id) => id,
         Err(e) => {
             log::error!("{}", &e);
@@ -81,7 +81,8 @@ async fn join_organizations(
 #[put("/organizations/{organization_id}")]
 async fn update_organizations(
     _req: HttpRequest,
-    path: web::Path<u64>,
+    _path: web::Path<u64>,
+    update_org: web::Json<OrganizationAPI>,
     session: Session,
     orgs_repo: Data<MySqlOrganizationsRepository>,
 ) -> Result<HttpResponse> {
@@ -91,7 +92,15 @@ async fn update_organizations(
             .finish());
     }
 
-    todo!();
+    let update_org = update_org.into_inner();
+
+    match orgs_repo.update_org(&update_org).await {
+        Ok(_) => (),
+        Err(e) => {
+            log::error!("{}", &e);
+            return Ok(HttpResponse::build(StatusCode::UNAUTHORIZED).finish());
+        }
+    }
 
     Ok(HttpResponse::Ok().finish())
 }
