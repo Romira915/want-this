@@ -34,11 +34,13 @@ CREATE TABLE IF NOT EXISTS users_organizations (
     user_id BIGINT UNSIGNED NOT NULL,
     organization_id BIGINT UNSIGNED NOT NULL,
     edit_permission BOOLEAN NOT NULL DEFAULT (0),
+    join_status VARCHAR(10) NOT NULL,
     PRIMARY KEY (user_id, organization_id),
     created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
     updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     CONSTRAINT fk_user_id FOREIGN KEY (user_id) REFERENCES users(user_id) ON DELETE CASCADE,
-    CONSTRAINT fk_org_id FOREIGN KEY (organization_id) REFERENCES organizations(organization_id) ON DELETE CASCADE
+    CONSTRAINT fk_org_id FOREIGN KEY (organization_id) REFERENCES organizations(organization_id) ON DELETE CASCADE,
+    INDEX idx_status(join_status)
 ) ENGINE = InnoDB DEFAULT CHARSET = utf8mb4;
 CREATE TABLE IF NOT EXISTS want_items (
     item_id BIGINT UNSIGNED PRIMARY KEY NOT NULL DEFAULT (uuid_short()),
