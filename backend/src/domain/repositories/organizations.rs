@@ -29,6 +29,7 @@ pub(crate) trait OrganizationsRepository {
     async fn fetch_public_orgs(&self) -> anyhow::Result<Vec<Organization>>;
     async fn fetch_joined_orgs(&self, user_id: u64) -> anyhow::Result<Vec<Organization>>;
     async fn fetch_joined_users(&self, org_id: u64) -> anyhow::Result<Vec<User>>;
+    async fn delete_org(&self, org_id: u64) -> anyhow::Result<u64>;
 }
 
 #[derive(Debug, Constructor)]
@@ -110,5 +111,11 @@ impl OrganizationsRepository for MySqlOrganizationsRepository {
         let mut conn = self.pool.acquire().await.context("Failed to acquire")?;
 
         InternalOrganizationRepository::fetch_joined_users(&mut conn, org_id).await
+    }
+
+    async fn delete_org(&self, org_id: u64) -> anyhow::Result<u64> {
+        let mut conn = self.pool.acquire().await.context("Failed to acquire")?;
+
+        InternalOrganizationRepository::delete_org(&mut conn, org_id).await
     }
 }

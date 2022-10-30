@@ -78,6 +78,7 @@ async fn join_organizations(
     Ok(HttpResponse::Ok().finish())
 }
 
+// TODO: 編集権限持ちのみが実行可能にする
 #[put("/organizations/{organization_id}")]
 async fn update_organizations(
     _req: HttpRequest,
@@ -122,7 +123,7 @@ async fn delete_organizations(
 
     // 組織が存在するか
     match orgs_repo.find_org_by_org_id(org_id).await {
-        Ok(_) => {
+        Ok(org) => {
             // TODO: 組織を削除
         }
         Err(e) => {
