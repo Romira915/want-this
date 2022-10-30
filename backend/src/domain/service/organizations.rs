@@ -15,7 +15,7 @@ use crate::{
         repositories::organizations::{MySqlOrganizationsRepository, OrganizationsRepository},
     },
     session::SessionKey,
-    utility::is_login,
+    utility::{get_user_id_unchecked, is_login},
     CONFIG,
 };
 
@@ -95,12 +95,9 @@ async fn update_organizations(
 
     let update_org = update_org.into_inner();
 
-    match orgs_repo.update_org(&update_org).await {
-        Ok(_) => (),
-        Err(e) => {
-            log::error!("{}", &e);
-            return Ok(HttpResponse::build(StatusCode::UNAUTHORIZED).finish());
-        }
+    if let Err(e) = orgs_repo.update_org(&update_org).await {
+        log::error!("{}", &e);
+        return Ok(HttpResponse::build(StatusCode::UNAUTHORIZED).finish());
     }
 
     Ok(HttpResponse::Ok().finish())
@@ -113,18 +110,28 @@ async fn delete_organizations(
     session: Session,
     orgs_repo: Data<MySqlOrganizationsRepository>,
 ) -> Result<HttpResponse> {
-    if !is_login(&session)? {
+    let user_id = if let Some(user_id) = get_user_id_unchecked(&session) {
+        user_id
+    } else {
         return Ok(HttpResponse::NotFound()
             .insert_header(("WantThis-Location", format!("{}/", CONFIG.frontend_origin)))
             .finish());
-    }
+    };
 
     let org_id = path.into_inner();
 
-    // 組織が存在するか
+    // NOTE: 組織が存在するか
     match orgs_repo.find_org_by_org_id(org_id).await {
         Ok(org) => {
-            // TODO: 組織を削除
+            // NOTE: オーナーのみ削除可能
+            if org.owner == user_id {
+                if let Err(e) = orgs_repo.delete_org(org_id).await {
+                    log::error!("{}", &e);
+                    return Ok(HttpResponse::build(StatusCode::UNAUTHORIZED).finish());
+                }
+            } else {
+                log::warn!("不当なユーザーから削除リクエスト");
+            }
         }
         Err(e) => {
             log::error!("{}", &e);
@@ -132,5 +139,5 @@ async fn delete_organizations(
         }
     };
 
-    todo!()
+    Ok(HttpResponse::Ok().finish())
 }
