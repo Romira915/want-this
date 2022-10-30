@@ -25,7 +25,7 @@ pub(crate) trait OrganizationsRepository {
         org_description: &str,
     ) -> anyhow::Result<u64>;
     async fn update_is_public(&self, org_id: u64, is_public: bool) -> anyhow::Result<u64>;
-    async fn update_owner(&self, org_id: u64, owner_id: bool) -> anyhow::Result<u64>;
+    async fn update_owner(&self, org_id: u64, owner_id: u64) -> anyhow::Result<u64>;
     async fn fetch_public_orgs(&self) -> anyhow::Result<Vec<Organization>>;
     async fn fetch_joined_orgs(&self, user_id: u64) -> anyhow::Result<Vec<Organization>>;
     async fn fetch_joined_users(&self, org_id: u64) -> anyhow::Result<Vec<User>>;
@@ -88,7 +88,7 @@ impl OrganizationsRepository for MySqlOrganizationsRepository {
         InternalOrganizationRepository::update_is_public(&mut conn, org_id, is_public).await
     }
 
-    async fn update_owner(&self, org_id: u64, owner_id: bool) -> anyhow::Result<u64> {
+    async fn update_owner(&self, org_id: u64, owner_id: u64) -> anyhow::Result<u64> {
         let mut conn = self.pool.acquire().await.context("Failed to acquire")?;
 
         InternalOrganizationRepository::update_owner(&mut conn, org_id, owner_id).await

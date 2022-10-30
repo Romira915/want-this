@@ -154,7 +154,7 @@ impl InternalOrganizationRepository {
     pub(crate) async fn update_owner(
         conn: &mut MySqlConnection,
         org_id: u64,
-        owner_id: bool,
+        owner_id: u64,
     ) -> anyhow::Result<u64> {
         let id = sqlx::query!(
             "UPDATE organizations SET owner = ? WHERE organization_id = ?;",
