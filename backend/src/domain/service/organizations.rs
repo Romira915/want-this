@@ -82,11 +82,22 @@ async fn join_organizations(
 #[put("/organizations/{organization_id}")]
 async fn update_organizations(
     _req: HttpRequest,
-    _path: web::Path<u64>,
+    path: web::Path<u64>,
     update_org: web::Json<OrganizationAPI>,
     session: Session,
     orgs_repo: Data<MySqlOrganizationsRepository>,
 ) -> Result<HttpResponse> {
+    let org_id = path.into_inner();
+    if org_id
+        != update_org
+            .organization_id
+            .parse::<u64>()
+            .expect("Failed to parse() organization_id")
+    {
+        log::info!("pathとorganization_idが不一致");
+        return Ok(HttpResponse::build(StatusCode::UNAUTHORIZED).finish());
+    }
+
     let user_id = if let Some(user_id) = get_user_id_unchecked(&session) {
         user_id
     } else {
@@ -95,11 +106,23 @@ async fn update_organizations(
             .finish());
     };
 
-    let update_org = update_org.into_inner();
+    let org = match orgs_repo.find_org_by_org_id(org_id).await {
+        Ok(org) => org,
+        Err(e) => {
+            log::error!("{}", &e);
+            return Ok(HttpResponse::build(StatusCode::NOT_FOUND).finish());
+        }
+    };
 
-    if let Err(e) = orgs_repo.update_org(&update_org).await {
-        log::error!("{}", &e);
-        return Ok(HttpResponse::build(StatusCode::UNAUTHORIZED).finish());
+    // NOTE: オーナーと編集権限持ちは実行
+    // TODO: 編集権限持ちも実行可能にする
+    if user_id == org.owner {
+        let update_org = update_org.into_inner();
+
+        if let Err(e) = orgs_repo.update_org(&update_org).await {
+            log::error!("{}", &e);
+            return Ok(HttpResponse::build(StatusCode::UNAUTHORIZED).finish());
+        }
     }
 
     Ok(HttpResponse::Ok().finish())
@@ -123,23 +146,23 @@ async fn delete_organizations(
     let org_id = path.into_inner();
 
     // NOTE: 組織が存在するか
-    match orgs_repo.find_org_by_org_id(org_id).await {
-        Ok(org) => {
-            // NOTE: オーナーのみ削除可能
-            if org.owner == user_id {
-                if let Err(e) = orgs_repo.delete_org(org_id).await {
-                    log::error!("{}", &e);
-                    return Ok(HttpResponse::build(StatusCode::UNAUTHORIZED).finish());
-                }
-            } else {
-                log::warn!("不当なユーザーから削除リクエスト");
-            }
-        }
+    let org = match orgs_repo.find_org_by_org_id(org_id).await {
+        Ok(org) => org,
         Err(e) => {
             log::error!("{}", &e);
             return Ok(HttpResponse::build(StatusCode::NOT_FOUND).finish());
         }
     };
+
+    // NOTE: オーナーのみ削除可能
+    if org.owner == user_id {
+        if let Err(e) = orgs_repo.delete_org(org_id).await {
+            log::error!("{}", &e);
+            return Ok(HttpResponse::build(StatusCode::UNAUTHORIZED).finish());
+        }
+    } else {
+        log::warn!("不当なユーザーから削除リクエスト");
+    }
 
     Ok(HttpResponse::Ok().finish())
 }
