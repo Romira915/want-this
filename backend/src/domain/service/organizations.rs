@@ -87,11 +87,13 @@ async fn update_organizations(
     session: Session,
     orgs_repo: Data<MySqlOrganizationsRepository>,
 ) -> Result<HttpResponse> {
-    if !is_login(&session)? {
+    let user_id = if let Some(user_id) = get_user_id_unchecked(&session) {
+        user_id
+    } else {
         return Ok(HttpResponse::NotFound()
             .insert_header(("WantThis-Location", format!("{}/", CONFIG.frontend_origin)))
             .finish());
-    }
+    };
 
     let update_org = update_org.into_inner();
 
