@@ -23,7 +23,7 @@ use actix_web::{
     App, Either, HttpRequest, HttpResponse, HttpServer, Responder, Result,
 };
 use actix_web::{http, HttpMessage};
-use api_format::User;
+use api_format::User as UserAPI;
 use async_stream::stream;
 use chrono::{FixedOffset, Utc};
 use jsonwebtoken::{decode, decode_header, jwk, DecodingKey, Validation};
@@ -41,8 +41,8 @@ use want_this_backend::domain::repositories::organizations::MySqlOrganizationsRe
 use want_this_backend::domain::repositories::users::MySqlUsersRepository;
 use want_this_backend::domain::service::auth::{auth, logout};
 use want_this_backend::domain::service::organizations::{
-    delete_user_from_organization, get_not_joined_organizations, join_request_organizations,
-    update_organizations,
+    delete_organizations, delete_user_from_organization, get_join_request_list,
+    get_not_joined_organizations, join_request_organizations, update_organizations,
 };
 use want_this_backend::domain::service::users::icon;
 use want_this_backend::session::SessionKey;
@@ -98,10 +98,11 @@ async fn welcome(req: HttpRequest, session: Session) -> Result<HttpResponse> {
 
 #[get("login/state")]
 async fn login_state(req: HttpRequest, session: Session) -> Result<HttpResponse> {
-    let id = session.get::<String>(SessionKey::GoogleId.as_ref())?;
-    log::debug!("state {:?}", id);
+    let google_id = session.get::<String>(SessionKey::GoogleId.as_ref())?;
+    log::debug!("state {:?}", google_id);
+    let user_id = session.get::<u64>(SessionKey::UserId.as_ref())?;
 
-    let user = User::new(id);
+    let user = UserAPI::new(user_id.unwrap_or_default().to_string(), google_id, None);
 
     Ok(HttpResponse::build(StatusCode::OK)
         .content_type(ContentType::json())
@@ -206,9 +207,11 @@ async fn main() -> io::Result<()> {
             .service(logout)
             .service(icon)
             // NOTE: Organizations
-            .service(update_organizations)
             .service(get_not_joined_organizations)
+            .service(get_join_request_list)
             .service(join_request_organizations)
+            .service(update_organizations)
+            .service(delete_organizations)
             .service(delete_user_from_organization)
             .service(
                 web::resource("/test").to(|req: HttpRequest| match *req.method() {

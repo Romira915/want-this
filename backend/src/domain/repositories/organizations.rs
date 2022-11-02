@@ -33,6 +33,7 @@ pub(crate) trait OrganizationsRepository {
         user_id: u64,
         org_id: u64,
     ) -> anyhow::Result<Option<bool>>;
+    async fn fetch_join_request_is_pending_users(&self, org_id: u64) -> anyhow::Result<Vec<User>>;
     // Update
     async fn update_org(&self, update_org: &OrganizationAPI) -> anyhow::Result<u64>;
     async fn update_org_name(&self, org_id: u64, org_name: &str) -> anyhow::Result<u64>;
@@ -115,6 +116,12 @@ impl OrganizationsRepository for MySqlOrganizationsRepository {
         let mut conn = self.pool.acquire().await.context("Failed to acquire")?;
 
         InternalOrganizationRepository::fetch_edit_permission(&mut conn, user_id, org_id).await
+    }
+
+    async fn fetch_join_request_is_pending_users(&self, org_id: u64) -> anyhow::Result<Vec<User>> {
+        let mut conn = self.pool.acquire().await.context("Failed to acquire")?;
+
+        InternalOrganizationRepository::fetch_join_request_is_pending_users(&mut conn, org_id).await
     }
 
     async fn update_org(&self, update_org: &OrganizationAPI) -> anyhow::Result<u64> {
