@@ -46,8 +46,10 @@ async fn auth(
             let icon_path = match reqwest::get(&google_payload.picture).await {
                 Ok(request) => match request.bytes().await {
                     Ok(bytes) => {
-                        let icon_path =
-                            format!("image/{}/{}", &google_payload.sub, &google_payload.sub);
+                        let icon_path = format!(
+                            "image/icons/{}/{}",
+                            &google_payload.sub, &google_payload.sub
+                        );
                         if let Err(e) = save_bytes(&icon_path, &bytes).await {
                             log::warn!("{:?}", &e);
                         }
