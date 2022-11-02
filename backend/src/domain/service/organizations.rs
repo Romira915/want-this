@@ -48,6 +48,8 @@ async fn get_not_joined_organizations(
             return Ok(HttpResponse::build(StatusCode::UNAUTHORIZED).finish());
         }
     };
+
+    // NOTE: 公開組織から加入済み組織を除去
     let org_list = org_list.into_iter().filter(|org| {
         for joined in &joined_org_list {
             if org.organization_id == joined.organization_id {
