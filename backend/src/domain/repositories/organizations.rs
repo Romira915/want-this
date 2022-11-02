@@ -6,7 +6,9 @@ use sqlx::{MySql, Pool};
 
 use crate::{
     domain::entity::{
-        organizations::{JoinOrganization, NewOrganization, Organization},
+        organizations::{
+            JoinOrganization, JoinRequestOrganization, JoinStatus, NewOrganization, Organization,
+        },
         users::User,
     },
     infrastructure::{create_uuid_short, organizations::InternalOrganizationRepository},
@@ -30,6 +32,10 @@ pub(crate) trait OrganizationsRepository {
     async fn fetch_joined_orgs(&self, user_id: u64) -> anyhow::Result<Vec<Organization>>;
     async fn fetch_joined_users(&self, org_id: u64) -> anyhow::Result<Vec<User>>;
     async fn delete_org(&self, org_id: u64) -> anyhow::Result<u64>;
+    async fn join_request_organization(
+        &self,
+        join_req_org: &JoinRequestOrganization,
+    ) -> anyhow::Result<u64>;
 }
 
 #[derive(Debug, Constructor)]
@@ -117,5 +123,14 @@ impl OrganizationsRepository for MySqlOrganizationsRepository {
         let mut conn = self.pool.acquire().await.context("Failed to acquire")?;
 
         InternalOrganizationRepository::delete_org(&mut conn, org_id).await
+    }
+
+    async fn join_request_organization(
+        &self,
+        join_req_org: &JoinRequestOrganization,
+    ) -> anyhow::Result<u64> {
+        let mut conn = self.pool.acquire().await.context("Failed to acquire")?;
+
+        InternalOrganizationRepository::join_request_organization(&mut conn, join_req_org).await
     }
 }
