@@ -68,7 +68,7 @@ async fn get_not_joined_organizations(
     Ok(HttpResponse::Ok().json(&org_list))
 }
 
-#[post("/organizations/{organization_id}/join")]
+#[post("/organizations/{organization_id}/join_request")]
 async fn join_request_organizations(
     _req: HttpRequest,
     path: web::Path<u64>,
