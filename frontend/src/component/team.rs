@@ -64,7 +64,7 @@ pub(crate) fn team(props: &Props) -> Html {
     let disabled = use_state(|| false);
     let handle = use_async(async move {
         Request::build(&format!(
-            "{}/organizations/{}/join",
+            "{}/organizations/{}/join_request",
             CONFIG.backend_origin, *org_id
         ))
         .method(Method::POST)

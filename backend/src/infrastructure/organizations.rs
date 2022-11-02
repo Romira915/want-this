@@ -301,4 +301,24 @@ impl InternalOrganizationRepository {
 
         Ok(id)
     }
+
+    pub(crate) async fn delete_user_from_organization(
+        conn: &mut MySqlConnection,
+        org_id: u64,
+        delete_user_id: u64,
+    ) -> anyhow::Result<u64> {
+        let id = sqlx::query!(
+            "DELETE FROM users_organizations 
+            WHERE user_id = ? 
+            AND organization_id = ?",
+            delete_user_id,
+            org_id
+        )
+        .execute(conn)
+        .await
+        .context("Failed to delete_user_from_organization")?
+        .last_insert_id();
+
+        Ok(id)
+    }
 }
