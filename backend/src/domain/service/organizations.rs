@@ -1,12 +1,13 @@
 use actix_session::Session;
 use actix_web::{
     delete, get,
-    http::header,
+    http::header::{self, ContentType},
     post, put,
     web::{self, Data},
     HttpRequest, HttpResponse, Result,
 };
 use api_format::Organization as OrganizationAPI;
+use api_format::User as UserAPI;
 use reqwest::StatusCode;
 
 use crate::{
@@ -65,7 +66,45 @@ async fn get_not_joined_organizations(
         .collect();
     log::debug!("{:#?}", org_list);
 
-    Ok(HttpResponse::Ok().json(&org_list))
+    Ok(HttpResponse::Ok()
+        .content_type(ContentType::json())
+        .json(&org_list))
+}
+
+/// NOTE: 加入リクエスト一覧を取得
+#[get("/organizations/{organization_id}/join_request")]
+async fn get_join_request_list(
+    _req: HttpRequest,
+    path: web::Path<u64>,
+    session: Session,
+    orgs_repo: Data<MySqlOrganizationsRepository>,
+) -> Result<HttpResponse> {
+    let _user_id = if let Some(user_id) = get_user_id(&session)? {
+        user_id
+    } else {
+        return Ok(HttpResponse::NotFound()
+            .insert_header(("WantThis-Location", format!("{}/", CONFIG.frontend_origin)))
+            .finish());
+    };
+
+    let org_id = path.into_inner();
+
+    let request_pending_users = match orgs_repo.fetch_join_request_is_pending_users(org_id).await {
+        Ok(users) => users,
+        Err(e) => {
+            log::error!("{:?}", &e);
+            return Ok(HttpResponse::InternalServerError().finish());
+        }
+    };
+
+    let request_pending_users: Vec<_> = request_pending_users
+        .into_iter()
+        .map(|u| UserAPI::from(u))
+        .collect();
+
+    Ok(HttpResponse::Ok()
+        .content_type(ContentType::json())
+        .json(&request_pending_users))
 }
 
 #[post("/organizations/{organization_id}/join_request")]
@@ -97,7 +136,7 @@ async fn join_request_organizations(
     Ok(HttpResponse::Ok().finish())
 }
 
-// TODO: 編集権限持ちのみが実行可能にする
+/// TODO: 編集権限持ちのみが実行可能にする
 #[put("/organizations/{organization_id}")]
 async fn update_organizations(
     _req: HttpRequest,

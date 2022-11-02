@@ -24,7 +24,8 @@ pub(crate) fn state() -> Html {
     let display = if handle.loading {
         "Loading".to_string()
     } else if let Some(user) = &handle.data {
-        user.google_id.clone().unwrap_or_else(|| "None".to_string())
+        format!("{:?}", user)
+        // user.google_id.clone().unwrap_or_else(|| "None".to_string())
     } else if let Some(e) = &handle.error {
         e.to_string()
     } else {
@@ -36,7 +37,6 @@ pub(crate) fn state() -> Html {
             {
                display
             }
-            <DebugComponent />
         </div>
     )
 }

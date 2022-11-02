@@ -101,6 +101,7 @@ impl InternalOrganizationRepository {
         Ok(id)
     }
 
+    /// TODO: fetch_optionalにすべき
     pub(crate) async fn find_org_by_org_id(
         conn: &mut MySqlConnection,
         org_id: u64,
@@ -113,7 +114,7 @@ impl InternalOrganizationRepository {
         )
         .fetch_one(conn)
         .await
-        .context("Failed to find_org_by_org_id")?;
+        .with_context(|| format!("Failed to find_org_by_org_id. org_id {}", org_id))?;
 
         Ok(org)
     }
@@ -178,7 +179,7 @@ impl InternalOrganizationRepository {
     ) -> anyhow::Result<Option<bool>> {
         let edit_permission = sqlx::query!(
             "SELECT edit_permission FROM users_organizations
-            WHERE user_id = ? AND organization_id = ?",
+            WHERE user_id = ? AND organization_id = ?;",
             user_id,
             org_id
         )
@@ -189,6 +190,26 @@ impl InternalOrganizationRepository {
         let edit_permission = edit_permission.map(|r| r.edit_permission != 0);
 
         Ok(edit_permission)
+    }
+
+    pub(crate) async fn fetch_join_request_is_pending_users(
+        conn: &mut MySqlConnection,
+        org_id: u64,
+    ) -> anyhow::Result<Vec<User>> {
+        let users = sqlx::query_as!(
+            User,
+            "SELECT user_id, google_id, user_name 
+            FROM users
+            INNER JOIN users_organizations USING(user_id)
+            WHERE users_organizations.organization_id = ? 
+            AND users_organizations.join_status = 'Pending';",
+            org_id
+        )
+        .fetch_all(conn)
+        .await
+        .context("Failed to fetch_join_request_is_pending_users")?;
+
+        Ok(users)
     }
 
     // NOTE: Update
@@ -291,7 +312,7 @@ impl InternalOrganizationRepository {
     // NOTE: Delete
     pub(crate) async fn delete_org(conn: &mut MySqlConnection, org_id: u64) -> anyhow::Result<u64> {
         let id = sqlx::query!(
-            "DELETE FROM organizations WHERE organization_id = ?",
+            "DELETE FROM organizations WHERE organization_id = ?;",
             org_id
         )
         .execute(conn)
@@ -310,7 +331,7 @@ impl InternalOrganizationRepository {
         let id = sqlx::query!(
             "DELETE FROM users_organizations 
             WHERE user_id = ? 
-            AND organization_id = ?",
+            AND organization_id = ?;",
             delete_user_id,
             org_id
         )
