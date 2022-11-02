@@ -9,6 +9,7 @@ const MAX_LEN_USER_NAME: usize = 100;
 pub(crate) struct InternalUserRepository;
 
 impl InternalUserRepository {
+    // NOTE: Create
     pub(crate) async fn add_new_user(
         conn: &mut MySqlConnection,
         new_user: &NewUser,
@@ -43,23 +44,24 @@ impl InternalUserRepository {
             .context("Failed to add_new_user_return_it")?)
     }
 
-    pub(crate) async fn update_user_name(
+    pub(crate) async fn add_follow_user(
         conn: &mut MySqlConnection,
-        update_user: &UpdateUser,
-    ) -> anyhow::Result<u64> {
-        let name = take_n_str(&update_user.name, MAX_LEN_USER_NAME);
-        let id = sqlx::query!(
-            "UPDATE users SET user_name = ? WHERE user_id = ?",
-            name,
-            update_user.user_id
+        src_uid: u64,
+        dist_uid: u64,
+    ) -> anyhow::Result<()> {
+        sqlx::query!(
+            "INSERT INTO friends_relationship (source, destination) VALUES (?, ?);",
+            src_uid,
+            dist_uid
         )
         .execute(conn)
-        .await?
-        .last_insert_id();
+        .await
+        .context("Failed to follow_user")?;
 
-        Ok(id)
+        Ok(())
     }
 
+    // NOTE: Read
     pub(crate) async fn find_user_by_google_id(
         conn: &mut MySqlConnection,
         google_id: &str,
@@ -90,23 +92,6 @@ impl InternalUserRepository {
         .context("Failed to find_user_by_google_id")?;
 
         Ok(user)
-    }
-
-    pub(crate) async fn add_follow_user(
-        conn: &mut MySqlConnection,
-        src_uid: u64,
-        dist_uid: u64,
-    ) -> anyhow::Result<()> {
-        sqlx::query!(
-            "INSERT INTO friends_relationship (source, destination) VALUES (?, ?);",
-            src_uid,
-            dist_uid
-        )
-        .execute(conn)
-        .await
-        .context("Failed to follow_user")?;
-
-        Ok(())
     }
 
     pub(crate) async fn fetch_follows(
@@ -188,6 +173,24 @@ impl InternalUserRepository {
         let path = path.profile_icon_path;
 
         Ok(path)
+    }
+
+    // NOTE: Update
+    pub(crate) async fn update_user_name(
+        conn: &mut MySqlConnection,
+        update_user: &UpdateUser,
+    ) -> anyhow::Result<u64> {
+        let name = take_n_str(&update_user.name, MAX_LEN_USER_NAME);
+        let id = sqlx::query!(
+            "UPDATE users SET user_name = ? WHERE user_id = ?",
+            name,
+            update_user.user_id
+        )
+        .execute(conn)
+        .await?
+        .last_insert_id();
+
+        Ok(id)
     }
 }
 

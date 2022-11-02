@@ -17,6 +17,7 @@ const MAX_LEN_ORG_DESCRIPTION: usize = 255;
 pub(crate) struct InternalOrganizationRepository;
 
 impl InternalOrganizationRepository {
+    // NOTE: Create
     pub(crate) async fn create_organization(
         conn: &mut MySqlConnection,
         org_id: u64,
@@ -117,6 +118,80 @@ impl InternalOrganizationRepository {
         Ok(org)
     }
 
+    pub(crate) async fn fetch_public_orgs(
+        conn: &mut MySqlConnection,
+    ) -> anyhow::Result<Vec<Organization>> {
+        let org_list = sqlx::query_as!(
+            Organization,
+            "SELECT organization_id, organization_name, description, is_public, owner 
+        FROM organizations WHERE is_public = 1;"
+        )
+        .fetch_all(conn)
+        .await
+        .context("Failed to fetch_public_org_list")?;
+
+        Ok(org_list)
+    }
+
+    pub(crate) async fn fetch_joined_orgs(
+        conn: &mut MySqlConnection,
+        user_id: u64,
+    ) -> anyhow::Result<Vec<Organization>> {
+        let org_list = sqlx::query_as!(
+            Organization,
+            "SELECT organization_id, organization_name, description, is_public, owner 
+        FROM organizations INNER JOIN
+        (SELECT organization_id FROM users_organizations WHERE user_id = ?) AS joined_list
+        USING(organization_id);",
+            user_id
+        )
+        .fetch_all(conn)
+        .await
+        .context("Failed to fetch_joined_org_list")?;
+
+        Ok(org_list)
+    }
+
+    pub(crate) async fn fetch_joined_users(
+        conn: &mut MySqlConnection,
+        org_id: u64,
+    ) -> anyhow::Result<Vec<User>> {
+        let user_list = sqlx::query_as!(
+            User,
+            "SELECT user_id, google_id, user_name
+        FROM users INNER JOIN
+        (SELECT user_id FROM users_organizations WHERE organization_id = ?) AS joined_list
+        USING(user_id);",
+            org_id
+        )
+        .fetch_all(conn)
+        .await
+        .context("Failed to fetch_joined_user_list")?;
+
+        Ok(user_list)
+    }
+
+    pub(crate) async fn fetch_edit_permission(
+        conn: &mut MySqlConnection,
+        user_id: u64,
+        org_id: u64,
+    ) -> anyhow::Result<Option<bool>> {
+        let edit_permission = sqlx::query!(
+            "SELECT edit_permission FROM users_organizations
+            WHERE user_id = ? AND organization_id = ?",
+            user_id,
+            org_id
+        )
+        .fetch_optional(conn)
+        .await
+        .context("Failed to fetch_edit_permission")?;
+
+        let edit_permission = edit_permission.map(|r| r.edit_permission != 0);
+
+        Ok(edit_permission)
+    }
+
+    // NOTE: Update
     pub(crate) async fn update_org(
         conn: &mut MySqlConnection,
         update_org: &OrganizationAPI,
@@ -213,59 +288,7 @@ impl InternalOrganizationRepository {
         Ok(id)
     }
 
-    pub(crate) async fn fetch_public_orgs(
-        conn: &mut MySqlConnection,
-    ) -> anyhow::Result<Vec<Organization>> {
-        let org_list = sqlx::query_as!(
-            Organization,
-            "SELECT organization_id, organization_name, description, is_public, owner 
-        FROM organizations WHERE is_public = 1;"
-        )
-        .fetch_all(conn)
-        .await
-        .context("Failed to fetch_public_org_list")?;
-
-        Ok(org_list)
-    }
-
-    pub(crate) async fn fetch_joined_orgs(
-        conn: &mut MySqlConnection,
-        user_id: u64,
-    ) -> anyhow::Result<Vec<Organization>> {
-        let org_list = sqlx::query_as!(
-            Organization,
-            "SELECT organization_id, organization_name, description, is_public, owner 
-        FROM organizations INNER JOIN
-        (SELECT organization_id FROM users_organizations WHERE user_id = ?) AS joined_list
-        USING(organization_id);",
-            user_id
-        )
-        .fetch_all(conn)
-        .await
-        .context("Failed to fetch_joined_org_list")?;
-
-        Ok(org_list)
-    }
-
-    pub(crate) async fn fetch_joined_users(
-        conn: &mut MySqlConnection,
-        org_id: u64,
-    ) -> anyhow::Result<Vec<User>> {
-        let user_list = sqlx::query_as!(
-            User,
-            "SELECT user_id, google_id, user_name
-        FROM users INNER JOIN
-        (SELECT user_id FROM users_organizations WHERE organization_id = ?) AS joined_list
-        USING(user_id);",
-            org_id
-        )
-        .fetch_all(conn)
-        .await
-        .context("Failed to fetch_joined_user_list")?;
-
-        Ok(user_list)
-    }
-
+    // NOTE: Delete
     pub(crate) async fn delete_org(conn: &mut MySqlConnection, org_id: u64) -> anyhow::Result<u64> {
         let id = sqlx::query!(
             "DELETE FROM organizations WHERE organization_id = ?",
