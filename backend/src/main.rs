@@ -41,7 +41,7 @@ use want_this_backend::domain::repositories::organizations::MySqlOrganizationsRe
 use want_this_backend::domain::repositories::users::MySqlUsersRepository;
 use want_this_backend::domain::service::auth::{auth, logout};
 use want_this_backend::domain::service::organizations::{
-    get_organizations, join_organizations, update_organizations,
+    get_not_joined_organizations, join_request_organizations, update_organizations,
 };
 use want_this_backend::domain::service::users::icon;
 use want_this_backend::session::SessionKey;
@@ -204,9 +204,9 @@ async fn main() -> io::Result<()> {
             .service(auth)
             .service(logout)
             .service(icon)
-            .service(get_organizations)
-            .service(join_organizations)
             .service(update_organizations)
+            .service(get_not_joined_organizations)
+            .service(join_request_organizations)
             .service(
                 web::resource("/test").to(|req: HttpRequest| match *req.method() {
                     Method::GET => HttpResponse::Ok(),
