@@ -10,16 +10,19 @@ use crate::{
 
 #[async_trait]
 pub(crate) trait UsersRepository {
+    // Create
     async fn add_new_user(&self, new_user: &NewUser) -> anyhow::Result<u64>;
     async fn add_new_user_return_it(&self, new_user: &NewUser) -> anyhow::Result<User>;
-    async fn update_user_name(&self, update_user: &UpdateUser) -> anyhow::Result<u64>;
+    async fn add_follow_user(&self, src_uid: u64, dist_uid: u64) -> anyhow::Result<()>;
+    // Read
     async fn find_user_by_google_id(&self, google_id: &str) -> anyhow::Result<Option<User>>;
     async fn find_user_by_user_id(&self, user_id: u64) -> anyhow::Result<Option<User>>;
-    async fn add_follow_user(&self, src_uid: u64, dist_uid: u64) -> anyhow::Result<()>;
     async fn fetch_follows(&self, source_user_id: u64) -> anyhow::Result<Vec<User>>;
     async fn fetch_followers(&self, destination_user_id: u64) -> anyhow::Result<Vec<User>>;
     async fn fetch_friends(&self, user_id: u64) -> anyhow::Result<Vec<User>>;
     async fn get_icon_path_by_user_id(&self, user_id: u64) -> anyhow::Result<Option<String>>;
+    // Update
+    async fn update_user_name(&self, update_user: &UpdateUser) -> anyhow::Result<u64>;
 }
 
 #[derive(Debug, Constructor)]
@@ -41,10 +44,10 @@ impl UsersRepository for MySqlUsersRepository {
         InternalUserRepository::add_new_user_return_it(&mut conn, new_user).await
     }
 
-    async fn update_user_name(&self, update_user: &UpdateUser) -> anyhow::Result<u64> {
+    async fn add_follow_user(&self, src_uid: u64, dist_uid: u64) -> anyhow::Result<()> {
         let mut conn = self.pool.acquire().await.context("Failed to acquire")?;
 
-        InternalUserRepository::update_user_name(&mut conn, update_user).await
+        InternalUserRepository::add_follow_user(&mut conn, src_uid, dist_uid).await
     }
 
     async fn find_user_by_google_id(&self, google_id: &str) -> anyhow::Result<Option<User>> {
@@ -57,12 +60,6 @@ impl UsersRepository for MySqlUsersRepository {
         let mut conn = self.pool.acquire().await.context("Failed to acquire")?;
 
         InternalUserRepository::find_user_by_user_id(&mut conn, user_id).await
-    }
-
-    async fn add_follow_user(&self, src_uid: u64, dist_uid: u64) -> anyhow::Result<()> {
-        let mut conn = self.pool.acquire().await.context("Failed to acquire")?;
-
-        InternalUserRepository::add_follow_user(&mut conn, src_uid, dist_uid).await
     }
 
     async fn fetch_follows(&self, source_user_id: u64) -> anyhow::Result<Vec<User>> {
@@ -87,5 +84,11 @@ impl UsersRepository for MySqlUsersRepository {
         let mut conn = self.pool.acquire().await.context("Failed to acquire")?;
 
         InternalUserRepository::get_icon_path_by_user_id(&mut conn, user_id).await
+    }
+
+    async fn update_user_name(&self, update_user: &UpdateUser) -> anyhow::Result<u64> {
+        let mut conn = self.pool.acquire().await.context("Failed to acquire")?;
+
+        InternalUserRepository::update_user_name(&mut conn, update_user).await
     }
 }

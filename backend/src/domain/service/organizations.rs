@@ -115,10 +115,17 @@ async fn update_organizations(
     };
 
     // NOTE: オーナーと編集権限持ちは実行
-    // TODO: 編集権限持ちも実行可能にする
-    if user_id == org.owner {
+    // doneTODO: 編集権限持ちも実行可能にする
+    if user_id == org.owner
+        || orgs_repo
+            .fetch_edit_permission(user_id, org_id)
+            .await
+            .unwrap_or(None)
+            .unwrap_or(false)
+    {
         let update_org = update_org.into_inner();
 
+        // NOTE: 組織情報更新
         if let Err(e) = orgs_repo.update_org(&update_org).await {
             log::error!("{}", &e);
             return Ok(HttpResponse::build(StatusCode::UNAUTHORIZED).finish());

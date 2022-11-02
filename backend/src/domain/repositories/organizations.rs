@@ -14,9 +14,20 @@ use crate::{
 
 #[async_trait]
 pub(crate) trait OrganizationsRepository {
+    // Create
     async fn create_organization_and_join(&self, new_org: &NewOrganization) -> anyhow::Result<u64>;
     async fn join_organization(&self, join_org: &JoinOrganization) -> anyhow::Result<u64>;
+    // Read
     async fn find_org_by_org_id(&self, org_id: u64) -> anyhow::Result<Organization>;
+    async fn fetch_public_orgs(&self) -> anyhow::Result<Vec<Organization>>;
+    async fn fetch_joined_orgs(&self, user_id: u64) -> anyhow::Result<Vec<Organization>>;
+    async fn fetch_joined_users(&self, org_id: u64) -> anyhow::Result<Vec<User>>;
+    async fn fetch_edit_permission(
+        &self,
+        user_id: u64,
+        org_id: u64,
+    ) -> anyhow::Result<Option<bool>>;
+    // Update
     async fn update_org(&self, update_org: &OrganizationAPI) -> anyhow::Result<u64>;
     async fn update_org_name(&self, org_id: u64, org_name: &str) -> anyhow::Result<u64>;
     async fn update_org_description(
@@ -26,9 +37,7 @@ pub(crate) trait OrganizationsRepository {
     ) -> anyhow::Result<u64>;
     async fn update_is_public(&self, org_id: u64, is_public: bool) -> anyhow::Result<u64>;
     async fn update_owner(&self, org_id: u64, owner_id: u64) -> anyhow::Result<u64>;
-    async fn fetch_public_orgs(&self) -> anyhow::Result<Vec<Organization>>;
-    async fn fetch_joined_orgs(&self, user_id: u64) -> anyhow::Result<Vec<Organization>>;
-    async fn fetch_joined_users(&self, org_id: u64) -> anyhow::Result<Vec<User>>;
+    // Delete
     async fn delete_org(&self, org_id: u64) -> anyhow::Result<u64>;
 }
 
@@ -58,6 +67,34 @@ impl OrganizationsRepository for MySqlOrganizationsRepository {
         let mut conn = self.pool.acquire().await.context("Failed to acquire")?;
 
         InternalOrganizationRepository::find_org_by_org_id(&mut conn, org_id).await
+    }
+
+    async fn fetch_public_orgs(&self) -> anyhow::Result<Vec<Organization>> {
+        let mut conn = self.pool.acquire().await.context("Failed to acquire")?;
+
+        InternalOrganizationRepository::fetch_public_orgs(&mut conn).await
+    }
+
+    async fn fetch_joined_orgs(&self, user_id: u64) -> anyhow::Result<Vec<Organization>> {
+        let mut conn = self.pool.acquire().await.context("Failed to acquire")?;
+
+        InternalOrganizationRepository::fetch_joined_orgs(&mut conn, user_id).await
+    }
+
+    async fn fetch_joined_users(&self, org_id: u64) -> anyhow::Result<Vec<User>> {
+        let mut conn = self.pool.acquire().await.context("Failed to acquire")?;
+
+        InternalOrganizationRepository::fetch_joined_users(&mut conn, org_id).await
+    }
+
+    async fn fetch_edit_permission(
+        &self,
+        user_id: u64,
+        org_id: u64,
+    ) -> anyhow::Result<Option<bool>> {
+        let mut conn = self.pool.acquire().await.context("Failed to acquire")?;
+
+        InternalOrganizationRepository::fetch_edit_permission(&mut conn, user_id, org_id).await
     }
 
     async fn update_org(&self, update_org: &OrganizationAPI) -> anyhow::Result<u64> {
@@ -93,24 +130,6 @@ impl OrganizationsRepository for MySqlOrganizationsRepository {
         let mut conn = self.pool.acquire().await.context("Failed to acquire")?;
 
         InternalOrganizationRepository::update_owner(&mut conn, org_id, owner_id).await
-    }
-
-    async fn fetch_public_orgs(&self) -> anyhow::Result<Vec<Organization>> {
-        let mut conn = self.pool.acquire().await.context("Failed to acquire")?;
-
-        InternalOrganizationRepository::fetch_public_orgs(&mut conn).await
-    }
-
-    async fn fetch_joined_orgs(&self, user_id: u64) -> anyhow::Result<Vec<Organization>> {
-        let mut conn = self.pool.acquire().await.context("Failed to acquire")?;
-
-        InternalOrganizationRepository::fetch_joined_orgs(&mut conn, user_id).await
-    }
-
-    async fn fetch_joined_users(&self, org_id: u64) -> anyhow::Result<Vec<User>> {
-        let mut conn = self.pool.acquire().await.context("Failed to acquire")?;
-
-        InternalOrganizationRepository::fetch_joined_users(&mut conn, org_id).await
     }
 
     async fn delete_org(&self, org_id: u64) -> anyhow::Result<u64> {
