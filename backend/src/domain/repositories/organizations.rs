@@ -19,6 +19,10 @@ pub(crate) trait OrganizationsRepository {
     // Create
     async fn create_organization_and_join(&self, new_org: &NewOrganization) -> anyhow::Result<u64>;
     async fn join_organization(&self, join_org: &JoinOrganization) -> anyhow::Result<u64>;
+    async fn join_request_organization(
+        &self,
+        join_req_org: &JoinRequestOrganization,
+    ) -> anyhow::Result<u64>;
     // Read
     async fn find_org_by_org_id(&self, org_id: u64) -> anyhow::Result<Organization>;
     async fn fetch_public_orgs(&self) -> anyhow::Result<Vec<Organization>>;
@@ -41,10 +45,6 @@ pub(crate) trait OrganizationsRepository {
     async fn update_owner(&self, org_id: u64, owner_id: u64) -> anyhow::Result<u64>;
     // Delete
     async fn delete_org(&self, org_id: u64) -> anyhow::Result<u64>;
-    async fn join_request_organization(
-        &self,
-        join_req_org: &JoinRequestOrganization,
-    ) -> anyhow::Result<u64>;
 }
 
 #[derive(Debug, Constructor)]
@@ -67,6 +67,15 @@ impl OrganizationsRepository for MySqlOrganizationsRepository {
         let mut conn = self.pool.acquire().await.context("Failed to acquire")?;
 
         InternalOrganizationRepository::join_organization(&mut conn, &join_org).await
+    }
+
+    async fn join_request_organization(
+        &self,
+        join_req_org: &JoinRequestOrganization,
+    ) -> anyhow::Result<u64> {
+        let mut conn = self.pool.acquire().await.context("Failed to acquire")?;
+
+        InternalOrganizationRepository::join_request_organization(&mut conn, join_req_org).await
     }
 
     async fn find_org_by_org_id(&self, org_id: u64) -> anyhow::Result<Organization> {
@@ -142,14 +151,5 @@ impl OrganizationsRepository for MySqlOrganizationsRepository {
         let mut conn = self.pool.acquire().await.context("Failed to acquire")?;
 
         InternalOrganizationRepository::delete_org(&mut conn, org_id).await
-    }
-
-    async fn join_request_organization(
-        &self,
-        join_req_org: &JoinRequestOrganization,
-    ) -> anyhow::Result<u64> {
-        let mut conn = self.pool.acquire().await.context("Failed to acquire")?;
-
-        InternalOrganizationRepository::join_request_organization(&mut conn, join_req_org).await
     }
 }
