@@ -26,10 +26,16 @@ pub(crate) static CONFIG: Lazy<Config> = Lazy::new(|| {
 
 #[function_component(App)]
 pub fn app() -> Html {
+    // TODO: ダークモード切り替えに対応する
+    let color_mode = "light";
     html! {
-        <BrowserRouter>
-            <Header />
-            <Switch<MainRoute> render={Switch::render(switch_main)} />
-        </BrowserRouter>
+        <div class={color_mode}>
+            <div class="w-screen h-screen bg-light-background dark:bg-dark-background">
+                <BrowserRouter>
+                    <Header />
+                    <Switch<MainRoute> render={Switch::render(switch_main)} />
+                </BrowserRouter>
+            </div>
+        </div>
     }
 }
