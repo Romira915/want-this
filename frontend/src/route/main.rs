@@ -46,6 +46,6 @@ pub(crate) fn switch_main(route: &MainRoute) -> Html {
         MainRoute::Settings => html! {
             <Switch<SettingsRoute> render={Switch::render(switch_settings)} />
         },
-        MainRoute::NotFound => html! {<h1>{"Not Found"}</h1>},
+        MainRoute::NotFound => html! {<h1 class="flex justify-center">{"404 Not Found"}</h1>},
     }
 }
