@@ -44,6 +44,12 @@ pub(crate) trait OrganizationsRepository {
     ) -> anyhow::Result<u64>;
     async fn update_is_public(&self, org_id: u64, is_public: bool) -> anyhow::Result<u64>;
     async fn update_owner(&self, org_id: u64, owner_id: u64) -> anyhow::Result<u64>;
+    async fn update_join_status(
+        &self,
+        user_id: u64,
+        org_id: u64,
+        join_status: &JoinStatus,
+    ) -> anyhow::Result<u64>;
     // Delete
     async fn delete_org(&self, org_id: u64) -> anyhow::Result<u64>;
     async fn delete_user_from_organization(
@@ -157,6 +163,18 @@ impl OrganizationsRepository for MySqlOrganizationsRepository {
         let mut conn = self.pool.acquire().await.context("Failed to acquire")?;
 
         InternalOrganizationRepository::update_owner(&mut conn, org_id, owner_id).await
+    }
+
+    async fn update_join_status(
+        &self,
+        user_id: u64,
+        org_id: u64,
+        join_status: &JoinStatus,
+    ) -> anyhow::Result<u64> {
+        let mut conn = self.pool.acquire().await.context("Failed to acquire")?;
+
+        InternalOrganizationRepository::update_join_status(&mut conn, user_id, org_id, join_status)
+            .await
     }
 
     async fn delete_org(&self, org_id: u64) -> anyhow::Result<u64> {

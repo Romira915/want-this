@@ -42,7 +42,8 @@ use want_this_backend::domain::repositories::users::MySqlUsersRepository;
 use want_this_backend::domain::service::auth::{auth, logout};
 use want_this_backend::domain::service::organizations::{
     delete_organizations, delete_user_from_organization, get_join_request_list,
-    get_not_joined_organizations, join_request_organizations, update_organizations,
+    get_not_joined_organizations, join_request_organizations, process_join_request_user,
+    update_organizations,
 };
 use want_this_backend::domain::service::users::icon;
 use want_this_backend::session::SessionKey;
@@ -211,6 +212,7 @@ async fn main() -> io::Result<()> {
             .service(get_join_request_list)
             .service(join_request_organizations)
             .service(update_organizations)
+            .service(process_join_request_user)
             .service(delete_organizations)
             .service(delete_user_from_organization)
             .service(

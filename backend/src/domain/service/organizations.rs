@@ -1,3 +1,5 @@
+use std::str::FromStr;
+
 use actix_session::Session;
 use actix_web::{
     delete, get,
@@ -12,7 +14,7 @@ use reqwest::StatusCode;
 
 use crate::{
     domain::{
-        entity::organizations::{JoinOrganization, JoinRequestOrganization},
+        entity::organizations::{JoinOrganization, JoinRequestOrganization, JoinStatus},
         repositories::organizations::{MySqlOrganizationsRepository, OrganizationsRepository},
     },
     session::SessionKey,
@@ -188,6 +190,63 @@ async fn update_organizations(
             log::error!("{:?}", &e);
             return Ok(HttpResponse::InternalServerError().finish());
         }
+    }
+
+    Ok(HttpResponse::Ok().finish())
+}
+
+/// 加入リクエストを処理するAPI
+#[put("/organizations/{organization_id}/join_request/{user_id}/{join_status}")]
+async fn process_join_request_user(
+    _req: HttpRequest,
+    path: web::Path<(u64, u64, String)>,
+    session: Session,
+    orgs_repo: Data<MySqlOrganizationsRepository>,
+) -> Result<HttpResponse> {
+    let user_id = if let Some(user_id) = get_user_id_unchecked(&session) {
+        user_id
+    } else {
+        return Ok(HttpResponse::NotFound()
+            .insert_header(("WantThis-Location", format!("{}/", CONFIG.frontend_origin)))
+            .finish());
+    };
+
+    let (org_id, join_request_user_id, update_join_status) = path.into_inner();
+    let update_join_status =
+        JoinStatus::from_str(&update_join_status).unwrap_or(JoinStatus::Pending);
+    if update_join_status == JoinStatus::Pending {
+        return Ok(HttpResponse::BadRequest().finish());
+    }
+
+    let org = match orgs_repo.find_org_by_org_id(org_id).await {
+        Ok(org) => org,
+        Err(e) => {
+            log::error!("{:?}", &e);
+            return Ok(HttpResponse::InternalServerError().finish());
+        }
+    };
+
+    // NOTE: オーナーと編集権限持ちは実行
+    if user_id == org.owner
+        || orgs_repo
+            .fetch_edit_permission(user_id, org_id)
+            .await
+            .unwrap_or(None)
+            .unwrap_or(false)
+    {
+        if let Err(e) = orgs_repo
+            .update_join_status(join_request_user_id, org_id, &update_join_status)
+            .await
+        {
+            log::error!("{:?}", &e);
+            return Ok(HttpResponse::InternalServerError().finish());
+        }
+        log::info!(
+            "Update join_request user_id: {}; org_id: {}; join_status: {:?}",
+            join_request_user_id,
+            org_id,
+            &update_join_status
+        );
     }
 
     Ok(HttpResponse::Ok().finish())
