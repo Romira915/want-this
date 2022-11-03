@@ -7,7 +7,7 @@ use crate::{route::main::MainRoute, CONFIG};
 #[function_component(Header)]
 pub fn header() -> Html {
     html! {
-        <header class="text-light-text dark:text-dark-text bg-light-content-background dark:dark-content-background body-font">
+        <header class="text-light-text dark:text-dark-text bg-light-content-background dark:bg-dark-content-background body-font">
             <div class="container mx-auto flex flex-wrap p-5 flex-col md:flex-row items-center">
                 <Link<MainRoute> to={MainRoute::Home}>
                 <span class="flex title-font font-medium items-center text-light-text dark:text-dark-text mb-4 md:mb-0">
