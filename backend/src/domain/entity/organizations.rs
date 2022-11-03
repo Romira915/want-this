@@ -3,7 +3,7 @@ use derive_more::Constructor;
 use std::fmt::Display;
 use strum::{AsRefStr, EnumString};
 
-#[derive(Debug, EnumString, AsRefStr)]
+#[derive(Debug, EnumString, AsRefStr, PartialEq)]
 pub enum JoinStatus {
     #[strum(ascii_case_insensitive)]
     Joined,
