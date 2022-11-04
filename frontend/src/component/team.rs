@@ -103,3 +103,27 @@ pub(crate) fn team(props: &Props) -> Html {
         </div>
     )
 }
+
+#[function_component(DetailTeamList)]
+pub(crate) fn detail_team_list() -> Html {
+    let team: Vec<Html> = (0..10).map(|_| html!(<DetailTeam />)).collect();
+
+    html!(
+        <ul class="bg-light-content-background dark:bg-dark-content-background text-light-text dark:text-dark-text w-1/3 md:w-full">
+            {
+                (0..10).map(|_| html!(<DetailTeam />)).collect::<Html>()
+            }
+        </ul>
+    )
+}
+
+#[function_component(DetailTeam)]
+pub(crate) fn detail_team() -> Html {
+    html!(
+        <li class="flex flex-nowrap ">
+                <div class="grow">{"Romira-Team"}</div>
+                <div class="ml-4">{"Settings"}</div>
+                <div class="ml-4">{"🔔"}</div>
+        </li>
+    )
+}
