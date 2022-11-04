@@ -14,6 +14,8 @@ module.exports = {
         "light-content-background": "#f3f6f4",
         "light-background": "#FFFFFF",
         "light-text": "#0F0F0F",
+
+        "link-text": "#31A0D3"
       }
     },
   },
