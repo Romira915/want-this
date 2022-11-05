@@ -15,6 +15,7 @@ pub(crate) fn side_menu(props: &Props) -> Html {
     let side_bar_close_handle = {
         let side_menu_state = props.side_menu_state.clone();
         Callback::from(move |_| {
+            log::debug!("on click side menu close");
             side_menu_state.set(SideMenuState::Close);
         })
     };
@@ -31,7 +32,7 @@ pub(crate) fn side_menu(props: &Props) -> Html {
     html!(
         <div>
             // NOTE: サイドメニュー
-            <div class={format!("{animate_class_name} fixed z-50 top-0 w-80 h-full bg-light-content-background dark:bg-dark-content-background text-light-text dark:text-dark-text
+            <div class={format!("{animate_class_name} fixed z-50 top-0 w-screen sm:w-80 h-screen bg-light-content-background dark:bg-dark-content-background text-light-text dark:text-dark-text
                                 flex flex-col text-2xl items-center",
                                 animate_class_name=animate_class_name)}>
                 <div class="container flex items-center justify-between p-3 border-b border-b-gray-500">
@@ -54,10 +55,10 @@ pub(crate) fn side_menu(props: &Props) -> Html {
                         </Link<MainRoute>>
                     </li>
                 </ul>
-                <ul class="hover:overflow-auto w-full flex flex-col items-center">
+                <ul class="overflow-hidden hover:overflow-auto w-full h-full flex flex-col items-center">
                     // TODO: fetchでチーム情報取得して置き換え
                     {
-                        (0..100).map(|i| html!(<li>{format!("Team {}",i)}</li>)).collect::<Html>()
+                        (0..100).map(|i| html!(<li class="mt-1">{format!("Team {}",i)}</li>)).collect::<Html>()
                     }
                 </ul>
             </div>
