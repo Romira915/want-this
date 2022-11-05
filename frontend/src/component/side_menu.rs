@@ -1,4 +1,6 @@
-use yew::{function_component, html, use_context, use_state, Callback, Properties, UseStateHandle};
+use yew::{
+    function_component, html, use_context, use_state, Callback, Html, Properties, UseStateHandle,
+};
 use yew_router::prelude::Link;
 
 use crate::{route::main::MainRoute, SideMenuState};
@@ -43,18 +45,21 @@ pub(crate) fn side_menu(props: &Props) -> Html {
                     </button>
                 </div>
 
-                <ul>
+                <ul class="my-3">
                     <li>
                         <Link<MainRoute> to={MainRoute::Team}>
                             <span
                             onclick={side_bar_close_handle.clone()}
-                            class="block sm:hidden hover:text-light-primary dark:hover:text-dark-primary">{"Team"}</span>
+                            class="hover:text-light-primary dark:hover:text-dark-primary">{"Team"}</span>
                         </Link<MainRoute>>
                     </li>
                 </ul>
-                <div>
-
-                </div>
+                <ul class="hover:overflow-auto w-full flex flex-col items-center">
+                    // TODO: fetchでチーム情報取得して置き換え
+                    {
+                        (0..100).map(|i| html!(<li>{format!("Team {}",i)}</li>)).collect::<Html>()
+                    }
+                </ul>
             </div>
             <div onclick={side_bar_close_handle} class={format!("{hidden_class_name} fixed z-40 top-0 left-0 w-full h-full bg-black opacity-50", hidden_class_name=hidden_class_name)} />
         </div>
