@@ -30,7 +30,7 @@ pub(crate) fn header(props: &Props) -> Html {
                     </svg>
                 </button>
                 <Link<MainRoute> to={MainRoute::Home}>
-                    <span class="flex title-font font-medium items-center text-lightf-text dark:text-dark-text sm:ml-4">
+                    <span class="flex title-font font-medium items-center text-light-text dark:text-dark-text sm:ml-4">
                         <svg xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor" stroke-linecap="round"
                         stroke-linejoin="round" stroke-width="2" class="w-10 h-10 text-white p-2 bg-indigo-500 rounded-full"
                         viewBox="0 0 24 24">
@@ -57,7 +57,7 @@ pub(crate) fn header(props: &Props) -> Html {
                     </Link<MainRoute>>
                     <span class="hidden sm:block">
                         <a href={format!("{}/auth/logout", CONFIG.backend_origin)}
-                        class="inline-flex items-center dark:bg-gray-800 border-0 py-1 px-3 focus:outline-none hover:bg-light-secondary dark:hover:bg-dark-secondary rounded text-base mt-4 sm:mt-0">
+                        class="inline-flex items-center bg-light-button-bg dark:bg-dark-button-bg border-0 py-1 px-3 focus:outline-none hover:bg-light-secondary dark:hover:bg-dark-secondary rounded text-base mt-4 sm:mt-0">
                             <span>{"Logout"}</span>
                             <svg fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                             class="w-4 h-4 ml-1" viewBox="0 0 24 24">

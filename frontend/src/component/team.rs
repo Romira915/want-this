@@ -104,6 +104,22 @@ pub(crate) fn draft_team(props: &Props) -> Html {
     )
 }
 
+#[function_component(TeamContent)]
+pub(crate) fn team_content() -> Html {
+    html!(
+        <div class="container mx-auto px-2 py-4 bg-light-content-background dark:bg-dark-content-background text-light-text dark:text-dark-text max-w-lg">
+            <div class="container flex">
+                <h2 class="text-2xl">
+                    {"My Team"}
+                </h2>
+                <button class="ml-auto rounded py-1 px-3 bg-light-button-bg dark:bg-dark-button-bg hover:bg-light-primary">
+                    {"New Team"}
+                </button>
+            </div>
+        </div>
+    )
+}
+
 #[function_component(TeamList)]
 pub(crate) fn team_list() -> Html {
     html!(

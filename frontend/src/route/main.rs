@@ -35,8 +35,8 @@ pub(crate) fn switch_main(route: &MainRoute) -> Html {
             <h1> {"Frend"} </h1>
         },
         MainRoute::Team => html! {
-            // <TeamContent />
-            <TeamList />
+            <TeamContent />
+            // <TeamList />
         },
         MainRoute::MyPage => html! {
             <h1> {"MyPage"} </h1>
