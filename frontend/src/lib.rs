@@ -1,4 +1,5 @@
 use crate::component::header::Header;
+use crate::component::side_menu::SideMenu;
 use derive_more::Constructor;
 use once_cell::sync::Lazy;
 use route::main::{switch_main, MainRoute};
@@ -33,6 +34,7 @@ pub fn app() -> Html {
             <div class="w-screen h-screen bg-light-background dark:bg-dark-background">
                 <BrowserRouter>
                     <Header />
+                    <SideMenu />
                     <Switch<MainRoute> render={Switch::render(switch_main)} />
                 </BrowserRouter>
             </div>
