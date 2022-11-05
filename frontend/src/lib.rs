@@ -38,7 +38,7 @@ pub fn app() -> Html {
     let color_mode = "dark";
 
     // NOTE: デバッグ用にOpen状態にしている
-    let side_menu_state = use_state(|| SideMenuState::Open);
+    let side_menu_state = use_state(|| SideMenuState::Init);
 
     html! {
         <div class={color_mode}>

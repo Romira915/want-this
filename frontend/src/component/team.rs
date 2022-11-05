@@ -20,8 +20,8 @@ pub(crate) struct Props {
     pub(crate) toggle_ref: NodeRef,
 }
 
-#[function_component(TeamContent)]
-pub(crate) fn team_content() -> Html {
+#[function_component(DraftTeamContent)]
+pub(crate) fn draft_team_content() -> Html {
     let handle = use_async_with_options(
         async move {
             fetch::<Vec<Organization>>(&format!("{}/organizations", CONFIG.backend_origin)).await
@@ -50,7 +50,7 @@ pub(crate) fn team_content() -> Html {
     html!(
         <div class="dark:bg-gray-700 dark:text-gray-300">
             <div class="flex flex-col">
-                {for orgs.iter().map(|o| html!{<Team org={o.clone()} toggle_ref={toggle_ref.clone()} />})}
+                {for orgs.iter().map(|o| html!{<DraftTeam org={o.clone()} toggle_ref={toggle_ref.clone()} />})}
             </div>
             <button ref={toggle_ref} id={"org-create-modal-toggle"} hidden={true} data-modal-toggle="notice-modal">{"toggle"}</button>
             <Modal message={"参加申請しました!".to_string()} modal_id={"notice-modal"} />
@@ -58,8 +58,8 @@ pub(crate) fn team_content() -> Html {
     )
 }
 
-#[function_component(Team)]
-pub(crate) fn team(props: &Props) -> Html {
+#[function_component(DraftTeam)]
+pub(crate) fn draft_team(props: &Props) -> Html {
     let org_id = use_state(|| props.org.organization_id.clone());
     let disabled = use_state(|| false);
     let handle = use_async(async move {
@@ -104,10 +104,8 @@ pub(crate) fn team(props: &Props) -> Html {
     )
 }
 
-#[function_component(DetailTeamList)]
-pub(crate) fn detail_team_list() -> Html {
-    let team: Vec<Html> = (0..10).map(|_| html!(<DetailTeam />)).collect();
-
+#[function_component(TeamList)]
+pub(crate) fn team_list() -> Html {
     html!(
         <ul class="bg-light-content-background dark:bg-dark-content-background text-light-text dark:text-dark-text w-1/3 md:w-full">
             {
