@@ -37,7 +37,8 @@ pub fn app() -> Html {
     // TODO: ダークモード切り替えに対応する
     let color_mode = "dark";
 
-    let side_menu_state = use_state(|| SideMenuState::Init);
+    // NOTE: デバッグ用にOpen状態にしている
+    let side_menu_state = use_state(|| SideMenuState::Open);
 
     html! {
         <div class={color_mode}>
