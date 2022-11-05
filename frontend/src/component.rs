@@ -11,6 +11,7 @@ pub(crate) mod cta;
 pub(crate) mod header;
 pub(crate) mod login;
 pub(crate) mod modal;
+pub(crate) mod side_menu;
 pub(crate) mod team;
 
 #[function_component(State)]

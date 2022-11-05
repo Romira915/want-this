@@ -14,12 +14,14 @@ module.exports = {
         "dark-content-background": "#111827",
         "dark-background": "#0F0F0F",
         "dark-text": "#F1F1F1",
+        "dark-hover-bg": "#808080",
 
         "light-primary": "#2196f3",
         "light-secondary": "#f50057",
         "light-content-background": "#f3f6f4",
         "light-background": "#FFFFFF",
         "light-text": "#0F0F0F",
+        "light-hover-bg": "#c0c0c0",
 
         "link-text": "#31A0D3"
       }
