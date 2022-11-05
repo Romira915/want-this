@@ -24,8 +24,24 @@ module.exports = {
         "light-hover-bg": "#c0c0c0",
 
         "link-text": "#31A0D3"
+      },
+      animation: {
+        "slide-out-left": "slide-out-top 0.5s cubic-bezier(0.550, 0.085, 0.680, 0.530) both"
+      },
+      keyframes: {
+        "slide-out-top": {
+          "0%": {
+            transform: "translateX(0)",
+            opacity: "1"
+          },
+          to: {
+            transform: "translateX(-1000px)",
+            opacity: "0"
+          }
+        }
       }
     },
+
   },
   plugins: [],
   darkMode: "class"

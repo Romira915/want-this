@@ -1,4 +1,4 @@
-use yew::{function_component, html, use_state, Callback};
+use yew::{function_component, html, use_context, use_state, Callback};
 
 #[function_component(SideMenu)]
 pub(crate) fn side_menu() -> Html {
@@ -7,16 +7,19 @@ pub(crate) fn side_menu() -> Html {
     let onclick = {
         let is_hidden = is_hidden.clone();
         Callback::from(move |_| {
-            log::debug!("onClick hide content");
             is_hidden.set(true);
         })
     };
 
-    let hidden_class_name = if *is_hidden { "hidden" } else { "" };
+    let (hidden_class_name, anime_class_name) = if *is_hidden {
+        ("hidden", "animate-slide-out-left")
+    } else {
+        ("", "")
+    };
 
     html!(
         <div>
-            <div class={format!("{hidden_class_name} fixed dark:bg-red-500 z-50 top-0 -left-0 w-72 h-full", hidden_class_name=hidden_class_name)}>
+            <div class={format!("{anime_class_name} fixed dark:bg-red-500 z-50 top-0 -left-0 w-72 h-full", anime_class_name=anime_class_name)}>
                 <p>{"サイドメニュー"}</p>
                 <ul>
                     <li class="contents1">{"メニュー1"}</li>
