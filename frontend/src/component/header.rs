@@ -1,15 +1,30 @@
-use yew::{function_component, html, Callback};
+use yew::{
+    function_component, html, html::Scope, use_context, use_reducer, Callback, Properties,
+    UseStateHandle,
+};
 use yew_hooks::use_async;
 use yew_router::prelude::*;
 
-use crate::{route::main::MainRoute, CONFIG};
+use crate::{route::main::MainRoute, SideMenuState, CONFIG};
+
+#[derive(Properties, PartialEq)]
+pub(crate) struct Props {
+    pub(crate) side_menu_state: UseStateHandle<SideMenuState>,
+}
 
 #[function_component(Header)]
-pub fn header() -> Html {
+pub(crate) fn header(props: &Props) -> Html {
+    let onclick_side_menu_icon = {
+        let side_menu_state = props.side_menu_state.clone();
+        Callback::from(move |_| {
+            side_menu_state.set(SideMenuState::Open);
+        })
+    };
+
     html! {
         <header class="text-light-text dark:text-dark-text bg-light-content-background dark:bg-dark-content-background body-font">
             <div class="container sm:mx-0 mx-auto flex flex-wrap p-5 flex-row items-center justify-between">
-                <button class="hover:bg-light-hover-bg dark:hover:bg-dark-hover-bg rounded-full p-1">
+                <button onclick={onclick_side_menu_icon} class="hover:bg-light-hover-bg dark:hover:bg-dark-hover-bg rounded-full p-1">
                     <svg class="w-6 h-6 m-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 10h16M4 14h16M4 18h16"></path>
                     </svg>

@@ -14,6 +14,10 @@ pub(crate) mod modal;
 pub(crate) mod side_menu;
 pub(crate) mod team;
 
+enum Message {
+    ToggleSideMenu(bool),
+}
+
 #[function_component(State)]
 pub(crate) fn state() -> Html {
     let handle = use_async_with_options(
