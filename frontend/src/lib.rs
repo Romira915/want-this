@@ -35,7 +35,7 @@ enum SideMenuState {
 #[function_component(App)]
 pub fn app() -> Html {
     // TODO: ダークモード切り替えに対応する
-    let color_mode = "light";
+    let color_mode = "dark";
 
     // NOTE: デバッグ用にOpen状態にしている
     let side_menu_state = use_state(|| SideMenuState::Init);

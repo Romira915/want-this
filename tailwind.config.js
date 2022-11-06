@@ -16,6 +16,7 @@ module.exports = {
         "dark-text": "#F1F1F1",
         "dark-hover-bg": "#808080",
         "dark-button-bg": "#272727",
+        "dark-border": "#30363D",
 
         "light-primary": "#2196f3",
         "light-secondary": "#f50057",
@@ -24,6 +25,7 @@ module.exports = {
         "light-text": "#0F0F0F",
         "light-hover-bg": "#c0c0c0",
         "light-button-bg": "#DDDDDD",
+        "light-border": "#E1E5EA",
 
         "link-text": "#31A0D3"
       },
