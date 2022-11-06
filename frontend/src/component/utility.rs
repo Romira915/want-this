@@ -26,6 +26,8 @@ pub(crate) struct Props {
     pub children: Children,
     #[prop_or_default]
     pub color_type: ButtonColorType,
+    #[prop_or_default]
+    pub class: &'static str,
 }
 
 #[function_component(Button)]
@@ -45,9 +47,11 @@ pub(crate) fn button(props: &Props) -> Html {
                                  active:bg-light-secondary-deep dark:active:bg-dark-secondary-deep";
 
     let class = match props.color_type {
-        ButtonColorType::General => format!("{} {}", common_class, general_class),
-        ButtonColorType::Primary => format!("{} {}", common_class, primary_class),
-        ButtonColorType::Secondary => format!("{} {}", common_class, secondary_class),
+        ButtonColorType::General => format!("{} {} {}", common_class, general_class, props.class),
+        ButtonColorType::Primary => format!("{} {} {}", common_class, primary_class, props.class),
+        ButtonColorType::Secondary => {
+            format!("{} {} {}", common_class, secondary_class, props.class)
+        }
     };
 
     html!(
