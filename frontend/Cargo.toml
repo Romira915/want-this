@@ -36,6 +36,9 @@ features = [
   "RequestCredentials",
   "Response",
   "Window",
+  "Document",
+  "DomTokenList",
+  "Element",
   "HtmlButtonElement",
 ]
 version = "0.3.57"
