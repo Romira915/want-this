@@ -7,10 +7,25 @@ use yew::{
 };
 use yew_router::prelude::Link;
 
+#[derive(Debug, PartialEq)]
+pub(crate) enum ButtonColorType {
+    General,
+    Primary,
+    Secondary,
+}
+
+impl Default for ButtonColorType {
+    fn default() -> Self {
+        Self::General
+    }
+}
+
 #[derive(Properties, PartialEq)]
 pub(crate) struct Props {
     #[prop_or_default]
     pub children: Children,
+    #[prop_or_default]
+    pub color_type: ButtonColorType,
 }
 
 #[function_component(Button)]
