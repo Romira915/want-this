@@ -36,6 +36,7 @@ pub(crate) fn button(props: &Props) -> Html {
     let general_class = "hover:border-light-button-border-hover dark:hover:border-dark-button-border-hover 
                                hover:bg-light-button-bg-hover 
                                active:bg-light-button-bg-active dark:active:bg-dark-button-bg-active";
+    // TODO: 使う時がきたら実装する
     let primary_class = "";
     let secondary_class = "text-light-secondary dark:text-dark-secondary 
                                  hover:border-light-secondary dark:hover:border-dark-secondary 
