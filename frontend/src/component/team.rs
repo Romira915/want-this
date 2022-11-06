@@ -137,6 +137,7 @@ pub(crate) fn team_element() -> Html {
     html!(
         <li class="flex flex-nowrap">
                 <div class="grow text-link-text hover:underline hover:underline-offset-2">{"Romira-Team"}</div>
+                // TODO: Buttonを共通化する
                 <div class="ml-4 rounded py-1 px-3 bg-light-button-bg dark:bg-dark-button-bg">{"Request"}</div>
                 <div class="ml-4 rounded py-1 px-3 bg-light-button-bg dark:bg-dark-button-bg">{"Settings"}</div>
                 <div class="ml-4 text-light-secondary dark:text-dark-secondary">{"Leave"}</div>
