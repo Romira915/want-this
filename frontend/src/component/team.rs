@@ -14,7 +14,7 @@ use crate::{
     CONFIG,
 };
 
-use super::utility::Button;
+use super::utility::{Button, ButtonColorType};
 
 #[derive(Properties, PartialEq)]
 pub(crate) struct Props {
@@ -147,7 +147,7 @@ pub(crate) fn team_element() -> Html {
                 active:bg-light-button-bg-active dark:active:bg-dark-button-bg-active">{"Request"}</div>
                 <div class="ml-4 rounded py-1 px-3 bg-light-button-bg dark:bg-dark-button-bg">{"Settings"}</div>
                 <div class="ml-4 text-light-secondary dark:text-dark-secondary">{"Leave"}</div>
-                <Button>{"Button"}</Button>
+                <Button color_type={ButtonColorType::Secondary}>{"Button"}</Button>
         </li>
     )
 }

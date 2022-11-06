@@ -30,12 +30,27 @@ pub(crate) struct Props {
 
 #[function_component(Button)]
 pub(crate) fn button(props: &Props) -> Html {
+    let common_class = "rounded-md py-1 px-3 border-2 
+                              bg-light-button-bg dark:bg-dark-button-bg  
+                              border-light-button-border dark:border-dark-button-border";
+    let general_class = "hover:border-light-button-border-hover dark:hover:border-dark-button-border-hover 
+                               hover:bg-light-button-bg-hover 
+                               active:bg-light-button-bg-active dark:active:bg-dark-button-bg-active";
+    let primary_class = "";
+    let secondary_class = "text-light-secondary dark:text-dark-secondary 
+                                 hover:border-light-secondary dark:hover:border-dark-secondary 
+                                 hover:bg-light-secondary dark:hover:bg-dark-secondary 
+                                 hover:text-light-button-bg dark:hover:text-dark-text 
+                                 active:bg-light-secondary-deep dark:active:bg-dark-secondary-deep";
+
+    let class = match props.color_type {
+        ButtonColorType::General => format!("{} {}", common_class, general_class),
+        ButtonColorType::Primary => format!("{} {}", common_class, primary_class),
+        ButtonColorType::Secondary => format!("{} {}", common_class, secondary_class),
+    };
+
     html!(
-        <button class="rounded py-1 px-3 bg-light-button-bg dark:bg-dark-button-bg border-2
-                border-light-button-border dark:border-dark-button-border 
-                hover:border-light-button-border-hover dark:hover:border-dark-button-border-hover 
-                hover:bg-light-button-bg-hover 
-                active:bg-light-button-bg-active dark:active:bg-dark-button-bg-active">
+        <button class={class}>
             {
                 for props.children.iter()
             }
