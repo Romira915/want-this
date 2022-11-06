@@ -112,7 +112,7 @@ pub(crate) fn team_content() -> Html {
                 <h2 class="text-2xl">
                     {"My Team"}
                 </h2>
-                <button class="ml-auto rounded py-1 px-3 bg-light-button-bg dark:bg-dark-button-bg hover:bg-light-primary">
+                <button class="ml-auto rounded py-1 px-3 bg-light-button-bg dark:bg-dark-button-bg hover:bg-light-primary dark:hover:border-dark-content-border">
                     {"New Team"}
                 </button>
             </div>
@@ -124,7 +124,7 @@ pub(crate) fn team_content() -> Html {
 #[function_component(TeamList)]
 pub(crate) fn team_list() -> Html {
     html!(
-        <ul class="border-2 border-light-border dark:border-dark-border px-2 py-1 my-3 bg-light-content-background dark:bg-dark-content-background text-light-text dark:text-dark-text">
+        <ul class="border-2 border-light-content-border dark:border-dark-content-border px-2 py-1 my-3 bg-light-content-background dark:bg-dark-content-background text-light-text dark:text-dark-text">
             {
                 (0..10).map(|_| html!(<TeamElement />)).collect::<Html>()
             }
@@ -135,10 +135,14 @@ pub(crate) fn team_list() -> Html {
 #[function_component(TeamElement)]
 pub(crate) fn team_element() -> Html {
     html!(
-        <li class="flex flex-nowrap">
+        <li class="flex flex-nowrap my-1 items-center">
                 <div class="grow text-link-text hover:underline hover:underline-offset-2">{"Romira-Team"}</div>
                 // TODO: Buttonを共通化する
-                <div class="ml-4 rounded py-1 px-3 bg-light-button-bg dark:bg-dark-button-bg">{"Request"}</div>
+                <div class="ml-4 rounded py-1 px-3 bg-light-button-bg dark:bg-dark-button-bg border-2
+                border-light-button-border dark:border-dark-button-border 
+                hover:border-light-button-border-hover dark:hover:border-dark-button-border-hover 
+                hover:bg-light-button-bg-hover 
+                active:bg-light-button-bg-active dark:active:bg-dark-button-bg-active">{"Request"}</div>
                 <div class="ml-4 rounded py-1 px-3 bg-light-button-bg dark:bg-dark-button-bg">{"Settings"}</div>
                 <div class="ml-4 text-light-secondary dark:text-dark-secondary">{"Leave"}</div>
         </li>

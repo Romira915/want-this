@@ -24,7 +24,7 @@ pub(crate) fn header(props: &Props) -> Html {
     html! {
         <header class="text-light-text dark:text-dark-text bg-light-content-background dark:bg-dark-content-background body-font">
             <div class="container sm:mx-0 mx-auto flex flex-wrap p-5 flex-row items-center justify-between">
-                <button onclick={onclick_side_menu_icon} class="hover:bg-light-hover-bg dark:hover:bg-dark-hover-bg rounded-full p-1">
+                <button onclick={onclick_side_menu_icon} class="hover:bg-light-roundbutton-bg-hover dark:hover:bg-dark-roundbutton-bg-hover rounded-full p-1">
                     <svg class="w-6 h-6 m-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 10h16M4 14h16M4 18h16"></path>
                     </svg>
