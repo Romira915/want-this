@@ -114,7 +114,7 @@ pub(crate) fn team_content() -> Html {
                 <h2 class="text-2xl">
                     {"My Team"}
                 </h2>
-                <button class="ml-auto rounded py-1 px-3 bg-light-button-bg dark:bg-dark-button-bg hover:bg-light-primary dark:hover:border-dark-content-border">
+                <button class="ml-auto rounded py-1 px-3 bg-light-button-bg dark:bg-dark-button-bg hover:bg-light-primary dark:hover:bg-dark-primary">
                     {"New Team"}
                 </button>
             </div>

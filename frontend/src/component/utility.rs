@@ -33,7 +33,7 @@ pub(crate) struct Props {
 #[function_component(Button)]
 pub(crate) fn button(props: &Props) -> Html {
     let common_class = "rounded-md py-1 px-3 border-2 
-                              bg-light-button-bg dark:bg-dark-button-bg  
+                              bg-light-button-bg dark:bg-dark-button-bg 
                               border-light-button-border dark:border-dark-button-border";
     let general_class = "hover:border-light-button-border-hover dark:hover:border-dark-button-border-hover 
                                hover:bg-light-button-bg-hover 
