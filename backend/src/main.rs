@@ -22,7 +22,7 @@ use actix_web::{
     web::{self},
     App, Either, HttpRequest, HttpResponse, HttpServer, Responder, Result,
 };
-use actix_web::{http, HttpMessage};
+use actix_web::{http, options, HttpMessage};
 use api_format::User as UserAPI;
 use async_stream::stream;
 use chrono::{FixedOffset, Utc};
@@ -108,6 +108,11 @@ async fn login_state(req: HttpRequest, session: Session) -> Result<HttpResponse>
     Ok(HttpResponse::build(StatusCode::OK)
         .content_type(ContentType::json())
         .json(&user))
+}
+
+#[options("login/state")]
+async fn login_state_preflight(_session: Session) -> Result<HttpResponse> {
+    Ok(HttpResponse::Ok().finish())
 }
 
 async fn default_handler(req_method: Method) -> Result<impl Responder> {
@@ -204,6 +209,7 @@ async fn main() -> io::Result<()> {
             .service(favicon)
             .service(welcome)
             .service(login_state)
+            .service(login_state_preflight)
             .service(auth)
             .service(logout)
             .service(icon)
