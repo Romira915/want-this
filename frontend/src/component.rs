@@ -13,6 +13,7 @@ pub(crate) mod login;
 pub(crate) mod modal;
 pub(crate) mod side_menu;
 pub(crate) mod team;
+pub(crate) mod utility;
 
 enum Message {
     ToggleSideMenu(bool),

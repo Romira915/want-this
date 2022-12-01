@@ -14,6 +14,8 @@ use crate::{
     CONFIG,
 };
 
+use super::utility::{Button, ButtonColorType};
+
 #[derive(Properties, PartialEq)]
 pub(crate) struct Props {
     pub(crate) org: Organization,
@@ -104,24 +106,43 @@ pub(crate) fn draft_team(props: &Props) -> Html {
     )
 }
 
+#[function_component(TeamContent)]
+pub(crate) fn team_content() -> Html {
+    html!(
+        <div class="container mx-auto px-5 py-4 my-5 bg-light-content-background dark:bg-dark-content-background text-light-text dark:text-dark-text max-w-xl">
+            <div class="container flex">
+                <h2 class="text-2xl">
+                    {"My Team"}
+                </h2>
+                <button class="ml-auto rounded py-1 px-3 bg-light-button-bg dark:bg-dark-button-bg hover:bg-light-primary dark:hover:bg-dark-primary">
+                    {"New Team"}
+                </button>
+            </div>
+            <TeamList />
+        </div>
+    )
+}
+
 #[function_component(TeamList)]
 pub(crate) fn team_list() -> Html {
     html!(
-        <ul class="bg-light-content-background dark:bg-dark-content-background text-light-text dark:text-dark-text w-1/3 md:w-full">
+        <ul class="border-2 border-light-content-border dark:border-dark-content-border px-2 py-1 my-3 bg-light-content-background dark:bg-dark-content-background text-light-text dark:text-dark-text">
             {
-                (0..10).map(|_| html!(<DetailTeam />)).collect::<Html>()
+                (0..10).map(|_| html!(<TeamElement />)).collect::<Html>()
             }
         </ul>
     )
 }
 
-#[function_component(DetailTeam)]
-pub(crate) fn detail_team() -> Html {
+#[function_component(TeamElement)]
+pub(crate) fn team_element() -> Html {
     html!(
-        <li class="flex flex-nowrap ">
-                <div class="grow">{"Romira-Team"}</div>
-                <div class="ml-4">{"Settings"}</div>
-                <div class="ml-4">{"🔔"}</div>
+        <li class="flex flex-nowrap my-1 items-center">
+                <div class="grow text-link-text hover:underline hover:underline-offset-2">{"Romira-Team"}</div>
+                // TODO: Buttonを共通化する
+                <Button class="ml-4">{"Request"}</Button>
+                <Button class="ml-4">{"Settings"}</Button>
+                <Button color_type={ButtonColorType::Secondary} class="ml-4">{"Leave"}</Button>
         </li>
     )
 }

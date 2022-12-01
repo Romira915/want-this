@@ -10,19 +10,40 @@ module.exports = {
     extend: {
       colors: {
         "dark-primary": "#713FFF",
+        "dark-primary-deep": "#5a28ff",
+        "dark-primary-pale": "#825aff",
         "dark-secondary": "#ba000d",
+        "dark-secondary-deep": "#960000",
+        "dark-secondary-pale": "#C81E1E",
         "dark-content-background": "#111827",
+        "dark-content-border": "#30363D",
         "dark-background": "#0F0F0F",
         "dark-text": "#F1F1F1",
-        "dark-hover-bg": "#808080",
+        "dark-roundbutton-bg-hover": "#808080",
+        "dark-button-bg": "#272727",
+        "dark-button-border": "#2E323A",
+        "dark-button-border-hover": "#808080",
+        "dark-button-bg-active": "#808080",
 
         "light-primary": "#2196f3",
+        "light-primary-deep": "#0A8CDC",
+        "light-primary-pale": "#32B4FF",
         "light-secondary": "#f50057",
+        "light-secondary-deep": "#DC003C",
+        "light-secondary-pale": "#FF146E",
         "light-content-background": "#f3f6f4",
+        "light-content-border": "#E1E5EA",
         "light-background": "#FFFFFF",
         "light-text": "#0F0F0F",
-        "light-hover-bg": "#c0c0c0",
+        "light-roundbutton-bg-hover": "#c0c0c0",
+        "light-button-bg": "#DDDDDD",
+        // NOTE: ライトテーマのみ
+        "light-button-bg-hover": "#c0c0c0",
+        "light-button-border": "#c0c0c0",
+        "light-button-border-hover": "#808080",
+        "light-button-bg-active": "#808080",
 
+        // NOTE: 共通カラー
         "link-text": "#31A0D3"
       },
       animation: {
