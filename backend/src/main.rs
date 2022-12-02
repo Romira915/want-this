@@ -3,7 +3,7 @@ use std::fs::{self, File};
 use std::path::Path;
 use std::time::Duration;
 use std::{convert::Infallible, fmt::format};
-use std::{env, io};
+use std::{env, io, vec};
 
 use actix_cors::Cors;
 use actix_files::{Files, NamedFile};
@@ -208,7 +208,14 @@ async fn main() -> io::Result<()> {
             .wrap(
                 Cors::default()
                     .supports_credentials()
-                    .allowed_origin(&CONFIG.frontend_origin),
+                    .allowed_origin(&CONFIG.frontend_origin)
+                    .allowed_methods(vec!["GET", "POST", "PUT", "DELETE", "OPTIONS"])
+                    .allowed_headers(vec![
+                        "wantthis-location",
+                        "Content-Type",
+                        "Authorization",
+                        "X-XSRF-TOKEN",
+                    ]),
             )
             .app_data(Data::new(users_repository))
             .app_data(Data::new(orgs_repository))
