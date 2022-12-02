@@ -59,7 +59,12 @@ where
     if let Some(loc) = resp.headers().get("WantThis-Location") {
         if !loc.is_empty() {
             return Err(Error::new(
-                format!("{}: {}", resp.status(), resp.status_text()),
+                format!(
+                    "Location: {}; {}: {};",
+                    loc,
+                    resp.status(),
+                    resp.status_text()
+                ),
                 Some(loc),
             ));
         }
