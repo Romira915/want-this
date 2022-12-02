@@ -114,7 +114,7 @@ async fn login_state(req: HttpRequest, session: Session) -> Result<HttpResponse>
 async fn login_state_preflight(_session: Session) -> Result<HttpResponse> {
     Ok(HttpResponse::NoContent()
         .append_header(("Access-Control-Allow-Headers", "wantthis-location"))
-        .append_header(("Access-Control-Allow-Methods", "GET"))
+        .append_header(("Access-Control-Allow-Methods", "GET, OPTIONS"))
         .finish())
 }
 
