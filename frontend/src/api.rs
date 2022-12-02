@@ -32,7 +32,7 @@ pub(crate) trait RequestBuild {
         Request::new(url)
             .mode(RequestMode::Cors)
             .credentials(RequestCredentials::Include)
-        // .header("WantThis-Location", "")
+            .header("WantThis-Location", "")
     }
 }
 
