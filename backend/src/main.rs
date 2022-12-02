@@ -117,9 +117,9 @@ async fn login_state_preflight(_session: Session) -> Result<HttpResponse> {
         .append_header(("Access-Control-Allow-Methods", "GET, OPTIONS"))
         .append_header(("Access-Control-Max-Age", "86400"))
         .append_header((
-             "Access-Control-Allow-Origin",
-             "https://want-this.romira.dev",
-         ))
+            "Access-Control-Allow-Origin",
+            "https://want-this.romira.dev",
+        ))
         .finish())
 }
 
