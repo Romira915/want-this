@@ -112,7 +112,10 @@ async fn login_state(req: HttpRequest, session: Session) -> Result<HttpResponse>
 
 #[options("login/state")]
 async fn login_state_preflight(_session: Session) -> Result<HttpResponse> {
-    Ok(HttpResponse::Ok().finish())
+    Ok(HttpResponse::NoContent()
+        .append_header(("Access-Control-Allow-Headers", "wantthis-location"))
+        .append_header(("Access-Control-Allow-Methods", "GET"))
+        .finish())
 }
 
 async fn default_handler(req_method: Method) -> Result<impl Responder> {
@@ -197,13 +200,11 @@ async fn main() -> io::Result<()> {
         App::new()
             .wrap(middleware::Logger::default())
             .wrap(RedisSession::new(&CONFIG.redis_url, private_key.master()))
-            .wrap(if cfg!(debug_assertions) {
-                Cors::permissive()
-            } else {
+            .wrap(
                 Cors::default()
                     .supports_credentials()
-                    .allowed_origin(&CONFIG.frontend_origin)
-            })
+                    .allowed_origin(&CONFIG.frontend_origin),
+            )
             .app_data(Data::new(users_repository))
             .app_data(Data::new(orgs_repository))
             .service(favicon)
