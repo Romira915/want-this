@@ -110,19 +110,6 @@ async fn login_state(req: HttpRequest, session: Session) -> Result<HttpResponse>
         .json(&user))
 }
 
-#[options("login/state")]
-async fn login_state_preflight(_session: Session) -> Result<HttpResponse> {
-    Ok(HttpResponse::NoContent()
-        .append_header(("Access-Control-Allow-Headers", "wantthis-location"))
-        .append_header(("Access-Control-Allow-Methods", "GET, OPTIONS"))
-        .append_header(("Access-Control-Max-Age", "86400"))
-        .append_header((
-            "Access-Control-Allow-Origin",
-            CONFIG.frontend_origin.as_str(),
-        ))
-        .finish())
-}
-
 async fn default_handler(req_method: Method) -> Result<impl Responder> {
     match req_method {
         Method::GET => {
@@ -222,7 +209,6 @@ async fn main() -> io::Result<()> {
             .service(favicon)
             .service(welcome)
             .service(login_state)
-            .service(login_state_preflight)
             .service(auth)
             .service(logout)
             .service(icon)
