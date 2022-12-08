@@ -206,7 +206,8 @@ jobs:
           REMOTE_HOST: ${{ secrets.REMOTE_HOST }}
           REMOTE_USER: ${{ secrets.REMOTE_USER }}
           REMOTE_PORT: ${{ secrets.REMOTE_PORT }}
-          TARGET: "~/.tmp"
+          # NOTE: .want-this-tmpにマイグレーション用の一時ファイルを格納する．
+          TARGET: "~/.want-this-tmp"
 
       - name: restart service
         uses: appleboy/ssh-action@master
@@ -216,12 +217,14 @@ jobs:
           key: ${{ secrets.SERVER_SSH_KEY }}
           port: ${{ secrets.REMOTE_PORT }}
           script: |
-            sudo systemctl stop want-this-backend.service
-            source ~/.tmp/.env
-            wget https://github.com/k0kubun/sqldef/releases/download/v0.11.59/mysqldef_linux_arm64.tar.gz
+            cd ~/.want-this-tmp
+            source ./.env
+            wget -O ./mysqldef_linux_arm64.tar.gz https://github.com/k0kubun/sqldef/releases/download/v0.11.59/mysqldef_linux_arm64.tar.gz
             tar -zxvf mysqldef_linux_arm64.tar.gz
-            ~/mysqldef -u $MARIADB_USER -h $MARIADB_ADDRESS -P $MARIADB_PORT -p $MARIADB_PASSWORD $MARIADB_DATABASE < ~/.tmp/migration.sql
+            sudo systemctl stop want-this-backend.service
+            ./mysqldef -u $MARIADB_USER -h $MARIADB_ADDRESS -P $MARIADB_PORT -p $MARIADB_PASSWORD $MARIADB_DATABASE < ./migration.sql
             sudo systemctl start want-this-backend.service
+            cd ../ && rm -rf ~/.want-this-tmp
 
       - name: Bump version and push tag
         uses: mathieudutour/github-tag-action@v6.0
