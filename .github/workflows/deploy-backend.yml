@@ -9,11 +9,13 @@ on:
     branches: [main]
     paths:
       - "backend/**"
+      - "api_format/**"
 
   pull_request:
     types: [opened, reopened, synchronize]
     paths:
       - "backend/**"
+      - "api_format/**"
 
   # Allows you to run this workflow manually from the Actions tab
   workflow_dispatch:
@@ -201,7 +203,7 @@ jobs:
         uses: easingthemes/ssh-deploy@main
         env:
           SSH_PRIVATE_KEY: ${{ secrets.SERVER_SSH_KEY }}
-          ARGS: "-rltgoDzvO --rsync-path='sudo rsync'"
+          ARGS: "-rltgoDzvO --delete --rsync-path='sudo rsync'"
           SOURCE: "sql/"
           REMOTE_HOST: ${{ secrets.REMOTE_HOST }}
           REMOTE_USER: ${{ secrets.REMOTE_USER }}
