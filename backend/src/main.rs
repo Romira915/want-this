@@ -209,6 +209,7 @@ async fn main() -> io::Result<()> {
             .service(favicon)
             .service(welcome)
             .service(login_state)
+            // NOTE: Auth
             .service(auth)
             .service(logout)
             .service(icon)
